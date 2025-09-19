@@ -1,0 +1,43 @@
+name: frontend_sync_d
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
+
+flutter:
+  uses-material-design: true
+
+
+  # ✅ FONTS section in the CORRECT location
+  fonts:
+    - family: Pixer
+      fonts:
+        - asset: assets/font/Pixer-Regular.ttf
+
+# This entire block should be at the root level (no indentation)
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/icon.jpg"
+
+flutter_native_splash:
+  color: "#1B1717"
+  image: assets/icon.jpg
+  android_12:
+    image: assets/icon.jpg
+    color: "#1B1717"

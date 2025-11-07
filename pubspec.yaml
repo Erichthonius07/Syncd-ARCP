@@ -1,0 +1,43 @@
+name: frontend_sync_d
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/font/
+
+  fonts:
+    - family: Pixer
+      fonts:
+        - asset: assets/font/Pixer-Regular.ttf
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/icon_padded.png"
+
+# ✅ CORRECTED Splash Screen Configuration
+flutter_native_splash:
+  # This color is the only parameter we need. It will create a solid color
+  # background that perfectly matches your app's theme.
+  color: "#1B1717"

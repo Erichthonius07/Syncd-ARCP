@@ -1,10 +1,14 @@
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/controller/AuthController.java
-/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/repository/FriendRequestRepository.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/service/ActivityService.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/repository/UserRepository.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/controller/FriendController.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/config/SecurityConfig.java
-/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/SyncdBackendApplication.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/service/UserService.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/model/FriendRequest.java
-/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/model/User.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/repository/ActivityRepository.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/service/FriendService.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/controller/ActivityController.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/repository/FriendRequestRepository.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/SyncdBackendApplication.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/model/User.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/model/ActivityItem.java

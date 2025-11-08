@@ -1,29 +1,34 @@
 package com.syncd.syncd_backend.service;
 
-import com.syncd.syncd_backend.model.ActivityItem;
+import com.syncd.syncd_backend.model.Activity;
 import com.syncd.syncd_backend.repository.ActivityRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class ActivityService {
-    private final ActivityRepository repo;
 
-    public ActivityService(ActivityRepository repo) {
-        this.repo = repo;
+    private final ActivityRepository activityRepository;
+
+    public ActivityService(ActivityRepository activityRepository) {
+        this.activityRepository = activityRepository;
     }
 
-    public List<ActivityItem> getActivities(String username) {
-        return repo.findByUsernameOrderByTimestampDesc(username);
+    public Activity addActivity(String username, String message) {
+        Activity activity = new Activity();
+        activity.setUsername(username);
+        activity.setMessage(message);
+        activity.setTimestamp(LocalDateTime.now());
+        return activityRepository.save(activity);
     }
 
-    public ActivityItem addActivity(String username, String message) {
-        ActivityItem a = new ActivityItem(username, message);
-        return repo.save(a);
+    public List<Activity> getActivitiesForUser(String username) {
+        return activityRepository.findByUsername(username);
     }
 
-    public void clearAll(String username) {
-        List<ActivityItem> items = repo.findByUsernameOrderByTimestampDesc(username);
-        repo.deleteAll(items);
+    public void clearActivities(String username) {
+        activityRepository.deleteByUsername(username);
     }
 }

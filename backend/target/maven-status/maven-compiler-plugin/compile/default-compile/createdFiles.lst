@@ -4,10 +4,10 @@ com/syncd/syncd_backend/SyncdBackendApplication.class
 com/syncd/syncd_backend/repository/ActivityRepository.class
 com/syncd/syncd_backend/repository/FriendRequestRepository.class
 com/syncd/syncd_backend/controller/ActivityController.class
-com/syncd/syncd_backend/model/ActivityItem.class
 com/syncd/syncd_backend/repository/UserRepository.class
 com/syncd/syncd_backend/service/UserService.class
 com/syncd/syncd_backend/model/FriendRequest.class
+com/syncd/syncd_backend/model/Activity.class
 com/syncd/syncd_backend/service/FriendService.class
 com/syncd/syncd_backend/controller/FriendController.class
 com/syncd/syncd_backend/model/User.class

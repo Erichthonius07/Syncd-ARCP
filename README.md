@@ -213,11 +213,11 @@ git push origin backend/auth-module
 
 ## 👥 Team
 
-| Name           | Role                         |
-| -------------- | ---------------------------- |
-| 🧠 Nehal Ajmal | Backend REST API & Database  |
-| ⚡ Developer B  | WebSocket & Real-Time Engine |
-| 🎨 Developer C | Flutter Frontend (UI & UX)   |
+| role           | Name           | Role                         |
+| -------------- | -------------- | ---------------------------- |
+| 🧠 Developer A |  Nehal Ajmal | Backend REST API & Database  |
+| ⚡ Developer B  | Navistha Pandey  | WebSocket & Real-Time Engine |
+| 🎨 Developer C | Mohd Amaan  | Flutter Frontend (UI & UX)   |
 
 ---
 

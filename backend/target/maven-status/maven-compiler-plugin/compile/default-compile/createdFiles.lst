@@ -1,5 +1,5 @@
 com/syncd/syncd_backend/controller/AuthController.class
+com/syncd/syncd_backend/repository/UserRepository.class
 com/syncd/syncd_backend/service/UserService.class
 com/syncd/syncd_backend/model/Activity.class
-com/syncd/syncd_backend/repository/UserRepository.class
 com/syncd/syncd_backend/model/User.class

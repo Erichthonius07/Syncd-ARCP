@@ -31,13 +31,21 @@ public class FriendController {
         return friendService.getFriendRequests(username);
     }
 
+    /**
+     * FIXED: Changed return type from String to FriendRequest
+     * to match the FriendService.
+     */
     @PostMapping("/accept/{id}")
-    public String acceptRequest(@PathVariable Long id) {
+    public FriendRequest acceptRequest(@PathVariable Long id) {
         return friendService.acceptRequest(id);
     }
 
+    /**
+     * FIXED: Changed return type from String to FriendRequest
+     * to match the FriendService.
+     */
     @PostMapping("/decline/{id}")
-    public String declineRequest(@PathVariable Long id) {
+    public FriendRequest declineRequest(@PathVariable Long id) {
         return friendService.declineRequest(id);
     }
 }

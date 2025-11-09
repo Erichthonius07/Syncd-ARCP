@@ -1,7 +1,6 @@
 package com.syncd.syncd_backend.model;
 
 import jakarta.persistence.*;
-
 @Entity
 @Table(name = "friend_requests")
 public class FriendRequest {
@@ -9,13 +8,11 @@ public class FriendRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
     private String sender;
 
     @Column(nullable = false)
     private String receiver;
-
     @Column(nullable = false)
     private String status; // PENDING, ACCEPTED, DECLINED
 

@@ -4,11 +4,9 @@ import com.syncd.syncd_backend.model.FriendRequest;
 import com.syncd.syncd_backend.repository.FriendRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
-
 @Service
 public class FriendService {
     private final FriendRepository friendRepo;
-
     public FriendService(FriendRepository friendRepo) {
         this.friendRepo = friendRepo;
     }

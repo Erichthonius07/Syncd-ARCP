@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 com\syncd\syncd_backend\controller\ChatController.class
 com\syncd\syncd_backend\repository\UserRepository.class
 com\syncd\syncd_backend\service\FriendService.class
@@ -20,3 +21,10 @@ com\syncd\syncd_backend\controller\FriendController.class
 com\syncd\syncd_backend\dto\GameInviteNotification.class
 com\syncd\syncd_backend\controller\GameController.class
 com\syncd\syncd_backend\repository\FriendRepository.class
+=======
+com/syncd/syncd_backend/controller/AuthController.class
+com/syncd/syncd_backend/repository/UserRepository.class
+com/syncd/syncd_backend/service/UserService.class
+com/syncd/syncd_backend/model/Activity.class
+com/syncd/syncd_backend/model/User.class
+>>>>>>> b1ef7a81b9a3deebbf8bdca22dd4648878d92669

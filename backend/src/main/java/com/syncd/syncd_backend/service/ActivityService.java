@@ -9,11 +9,14 @@ import java.util.List;
 
 @Service
 public class ActivityService {
-
     private final ActivityRepository activityRepository;
 
     public ActivityService(ActivityRepository activityRepository) {
         this.activityRepository = activityRepository;
+    }
+
+    public List<Activity> getActivitiesForUser(String username) {
+        return activityRepository.findByUsername(username);
     }
 
     public Activity addActivity(String username, String message) {
@@ -22,10 +25,6 @@ public class ActivityService {
         activity.setMessage(message);
         activity.setTimestamp(LocalDateTime.now());
         return activityRepository.save(activity);
-    }
-
-    public List<Activity> getActivitiesForUser(String username) {
-        return activityRepository.findByUsername(username);
     }
 
     public void clearActivities(String username) {

@@ -9,6 +9,6 @@
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/repository/ActivityRepository.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/service/FriendService.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/controller/ActivityController.java
-/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/repository/FriendRequestRepository.java
+/Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/repository/FriendRepository.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/SyncdBackendApplication.java
 /Users/nehalajmal/AndroidStudioProjects/Syncd-ARCP/backend/src/main/java/com/syncd/syncd_backend/model/User.java

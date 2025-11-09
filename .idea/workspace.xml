@@ -6,17 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="4b00e328-77c0-48cb-b450-d56b89746ee5" name="Changes" comment="connection to PostgreSQL">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/controller/ActivityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/controller/ActivityController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/model/ActivityItem.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/repository/ActivityRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/repository/ActivityRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/service/ActivityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/service/ActivityService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/service/FriendService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/syncd/syncd_backend/service/FriendService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/surefire-reports/TEST-com.syncd.syncd_backend.SyncdBackendApplicationTests.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/surefire-reports/TEST-com.syncd.syncd_backend.SyncdBackendApplicationTests.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/surefire-reports/com.syncd.syncd_backend.SyncdBackendApplicationTests.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/surefire-reports/com.syncd.syncd_backend.SyncdBackendApplicationTests.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/target/syncd-backend-0.0.1-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/backend/target/syncd-backend-0.0.1-SNAPSHOT.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -17,9 +17,7 @@ public class FriendController {
     }
 
     @PostMapping("/add")
-    public FriendRequest sendRequest(
-            @RequestParam String sender,
-            @RequestParam String receiver) {
+    public FriendRequest sendRequest(@RequestParam String sender, @RequestParam String receiver) {
         return friendService.sendRequest(sender, receiver);
     }
 

@@ -1,9 +1,13 @@
 package com.syncd.syncd_backend.controller;
 
+// Import all DTOs for the game controller
 import com.syncd.syncd_backend.dto.GameInvite;
 import com.syncd.syncd_backend.dto.GameInviteNotification;
 import com.syncd.syncd_backend.dto.GameInput;
 import com.syncd.syncd_backend.dto.GameState;
+import com.syncd.syncd_backend.dto.SdpSignal;           // <-- NEW IMPORT
+import com.syncd.syncd_backend.dto.IceCandidateSignal;  // <-- NEW IMPORT
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -74,5 +78,45 @@ public class GameController {
 
         // 2. Broadcast the full state to everyone subscribed to that topic.
         messagingTemplate.convertAndSend(destination, gameState);
+    }
+
+    // ---
+    // --- NEW METHODS FOR WEBRTC VIDEO SIGNALING ---
+    // ---
+
+    /**
+     * Handles forwarding the WebRTC SDP (Offer/Answer) signals
+     * from one peer to the specified recipient.
+     */
+    @MessageMapping("/game/signal/sdp")
+    public void forwardSdpSignal(@Payload SdpSignal signal) {
+        
+        // Log the signal for debugging
+        System.out.println("Forwarding SDP from " + signal.getFromUser() + " to " + signal.getToUser());
+
+        // Send the SDP signal to the specific user's private queue
+        messagingTemplate.convertAndSendToUser(
+                signal.getToUser(),       // The recipient's username
+                "/queue/webrtc/sdp",      // The private destination for SDP signals
+                signal                    // The full SdpSignal object
+        );
+    }
+
+    /**
+     * Handles forwarding the WebRTC ICE Candidate signals
+     * from one peer to the specified recipient.
+     */
+    @MessageMapping("/game/signal/ice")
+    public void forwardIceCandidate(@Payload IceCandidateSignal signal) {
+
+        // Log the signal for debugging
+        System.out.println("Forwarding ICE from " + signal.getFromUser() + " to " + signal.getToUser());
+
+        // Send the ICE candidate to the specific user's private queue
+        messagingTemplate.convertAndSendToUser(
+                signal.getToUser(),       // The recipient's username
+                "/queue/webrtc/ice",      // The private destination for ICE signals
+                signal                    // The full IceCandidateSignal object
+        );
     }
 }

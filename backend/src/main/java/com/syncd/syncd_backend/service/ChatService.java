@@ -20,18 +20,13 @@ public class ChatService {
      * Fetches the full chat history between two users.
      */
     public List<Message> getChatHistory(String loggedInUsername, String friendUsername) {
-        // ---- TEMPORARY TEST CODE ----
-        // This adds a new message every time you call the API.
-        // REMOVE THIS after testing.
-        saveMessage(loggedInUsername, friendUsername, "This is a test message!");
-        // ---- END OF TEST CODE ----
         // The repository query handles finding messages in both directions
         return messageRepository.findChatHistory(loggedInUsername, friendUsername);
     }
 
     /**
      * Saves a new message to the database.
-     * This will be called by Developer B's WebSocket server.
+     * This is called by the GameController.
      */
     public Message saveMessage(String sender, String receiver, String content) {
         Message message = new Message();

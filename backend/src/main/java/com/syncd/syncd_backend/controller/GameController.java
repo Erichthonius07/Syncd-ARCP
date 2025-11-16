@@ -1,13 +1,21 @@
 package com.syncd.syncd_backend.controller;
 
+<<<<<<< HEAD
 // Import all DTOs for the game controller
+=======
+import com.syncd.syncd_backend.dto.ChatMessage;
+>>>>>>> 2fe6f760fb1f7cd65dd20ffdac8c1b4c95547efd
 import com.syncd.syncd_backend.dto.GameInvite;
 import com.syncd.syncd_backend.dto.GameInviteNotification;
 import com.syncd.syncd_backend.dto.GameInput;
 import com.syncd.syncd_backend.dto.GameState;
+<<<<<<< HEAD
 import com.syncd.syncd_backend.dto.SdpSignal;           // <-- NEW IMPORT
 import com.syncd.syncd_backend.dto.IceCandidateSignal;  // <-- NEW IMPORT
 
+=======
+import com.syncd.syncd_backend.service.ChatService; // <-- 1. IMPORT ChatService
+>>>>>>> 2fe6f760fb1f7cd65dd20ffdac8c1b4c95547efd
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -22,6 +30,35 @@ public class GameController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Autowired
+    private ChatService chatService; // <-- 2. INJECT ChatService
+
+    /**
+     * NEW: This method is triggered when a client sends a message to "/app/chat/send".
+     * It saves the message and forwards it to the recipient.
+     */
+    @MessageMapping("/chat/send")
+    public void sendChatMessage(@Payload ChatMessage chatMessage, Principal principal) {
+        // 1. Get the sender's username from the authenticated principal
+        String fromUser = principal.getName();
+
+        // 2. Save the message to the database
+        chatService.saveMessage(
+                fromUser,
+                chatMessage.getTo(),
+                chatMessage.getText()
+        );
+
+        // 3. Send the message to the specific recipient's private queue
+        // (The recipient must be subscribed to "/user/queue/messages")
+        messagingTemplate.convertAndSendToUser(
+                chatMessage.getTo(),      // The recipient's username
+                "/queue/messages",        // The private destination for messages
+                chatMessage               // The ChatMessage payload
+        );
+    }
+
+
     /**
      * This method is triggered when a client sends a message to "/app/game/invite".
      */
@@ -30,13 +67,11 @@ public class GameController {
 
         // 1. Get the sender's username from the 'principal'
         String fromUser = principal.getName();
-
         // 2. Create the notification payload to send to the recipient
         GameInviteNotification notification = new GameInviteNotification(
                 fromUser,
                 invite.getGameCode()
         );
-
         // 3. Send the notification to the specific user's private queue
         // We'll create a new, dedicated queue called "/queue/invites"
         messagingTemplate.convertAndSendToUser(
@@ -45,6 +80,7 @@ public class GameController {
                 notification              // The notification payload
         );
     }
+    
     /**
      * This method is triggered when a client sends a game input to "/app/game/input".
      * It broadcasts the input to all other clients in the same lobby.
@@ -54,13 +90,9 @@ public class GameController {
 
         // 1. Get the username of the person who sent the input
         String fromUser = principal.getName();
-
         // 2. Define the public topic for this specific game lobby
         String destination = "/topic/game/" + gameInput.getGameCode();
-
         // 3. Broadcast the input to everyone subscribed to that topic.
-        //    The frontend app will be responsible for making sure it
-        //    doesn't process its own sent messages.
         messagingTemplate.convertAndSend(destination, gameInput);
     }
 
@@ -75,7 +107,6 @@ public class GameController {
 
         // 1. Define the public topic for this specific game lobby
         String destination = "/topic/game/" + gameState.getGameCode();
-
         // 2. Broadcast the full state to everyone subscribed to that topic.
         messagingTemplate.convertAndSend(destination, gameState);
     }

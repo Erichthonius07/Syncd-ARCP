@@ -74,6 +74,7 @@ public class GameController {
     @MessageMapping("/game/input")
     public void handleGameInput(@Payload GameInput gameInput, Principal principal) {
         String fromUser = principal.getName();
+        // Here you could add logic to check if 'fromUser' matches the 'playerSlot'
         String destination = "/topic/game/" + gameInput.getGameCode();
         messagingTemplate.convertAndSend(destination, gameInput);
     }

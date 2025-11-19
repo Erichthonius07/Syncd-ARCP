@@ -15,7 +15,6 @@ import java.util.function.Function;
 public class JwtTokenProvider {
 
     // 1. Generate a secure secret key (keep this secret!)
-    // In a real app, this would be in application.yaml
     private final SecretKey jwtSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final long jwtExpirationInMs = 86400000; // 24 hours
 
@@ -25,9 +24,9 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date())
+                .expiration(expiryDate)
                 .signWith(jwtSecretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -51,13 +50,12 @@ public class JwtTokenProvider {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        // THIS IS THE CORRECTED LINE:
-        // Added .build() before .parseClaimsJws()
+        // THIS IS THE CORRECTED SYNTAX FOR jjwt v0.12.3
         return Jwts.parser()
-                .setSigningKey(jwtSecretKey)
-                .build() // <-- This was missing
-                .parseClaimsJws(token)
-                .getBody();
+                .verifyWith(jwtSecretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private Boolean isTokenExpired(String token) {

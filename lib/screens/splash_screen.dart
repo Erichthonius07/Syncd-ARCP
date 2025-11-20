@@ -1,6 +1,7 @@
-import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../widgets/dot_grid_background.dart';
+import '../theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,71 +11,40 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool _isVisible = false;
-  double _glitchOffset = 0.0;
-
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Random random = Random();
-        Timer.periodic(const Duration(milliseconds: 100), (timer) {
-          if (timer.tick > 5) {
-            timer.cancel();
-            setState(() {
-              _glitchOffset = 0;
-              _isVisible = true;
-            });
-          } else {
-            setState(() {
-              _glitchOffset = (random.nextDouble() - 0.5) * 15;
-            });
-          }
-        });
+        Navigator.pushReplacementNamed(context, '/login'); // Changed to Login
       }
     });
-
-    _navigateToHome();
-  }
-
-  Future<void> _navigateToHome() async {
-    await Future.delayed(const Duration(seconds: 3)); // Faster navigation
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Center(
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 800),
-          opacity: _isVisible ? 1.0 : 0.0,
+      body: DotGridBackground(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Transform.translate(
-                offset: Offset(_glitchOffset, 0),
-                child: Icon(
-                  Icons.gamepad_outlined,
-                  size: 100,
-                  color: theme.colorScheme.secondary,
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppTheme.cyberYellow,
+                  border: Border.all(width: 4),
+                  boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(6, 6), blurRadius: 0)],
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "Sync’d",
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
+                child: const Text(
+                  "SYNC'D",
+                  style: TextStyle(fontFamily: 'Pixer', fontSize: 48, color: Colors.black),
                 ),
-              ),
+              ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+
+              const SizedBox(height: 30),
+
+              const Text("INITIALIZING...", style: TextStyle(fontFamily: 'Pixer', fontSize: 14)),
             ],
           ),
         ),

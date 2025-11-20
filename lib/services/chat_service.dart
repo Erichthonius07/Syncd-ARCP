@@ -1,34 +1,31 @@
 import 'package:flutter/material.dart';
-import '../models/message_model.dart';
 
-class ChatService with ChangeNotifier {
-  // A map to hold a list of messages for each friend's name
-  final Map<String, List<Message>> _conversations = {
-    'Alice': [
-      Message(text: 'Hey! Want to play Halo later?', isSentByMe: false),
-    ],
-    'Bob': [],
-  };
+class Message {
+  final String text;
+  final bool isMe; // Fixed: Added this field
 
-  // Get the conversation for a specific friend
+  Message({required this.text, required this.isMe});
+}
+
+class ChatService extends ChangeNotifier {
+  // Mock Data
+  final List<Message> _messages = [
+    Message(text: "Hey! Ready for the game?", isMe: false),
+    Message(text: "Yeah, just loading up now.", isMe: true),
+  ];
+
   List<Message> getConversation(String friendName) {
-    // If no conversation exists, create an empty one
-    _conversations.putIfAbsent(friendName, () => []);
-    return _conversations[friendName]!;
+    return _messages;
   }
 
-  // Send a new message
   void sendMessage(String friendName, String text) {
-    final conversation = getConversation(friendName);
-    conversation.add(Message(text: text, isSentByMe: true));
-
-    // In a real app, you would send the message to a server.
-    // Here, we'll simulate a reply after a short delay.
-    Future.delayed(const Duration(seconds: 1), () {
-      conversation.add(Message(text: 'Sounds good!', isSentByMe: false));
-      notifyListeners(); // This tells the UI to rebuild and show the new messages
-    });
-
+    _messages.insert(0, Message(text: text, isMe: true));
     notifyListeners();
+
+    // Mock reply simulation
+    Future.delayed(const Duration(seconds: 1), () {
+      _messages.insert(0, Message(text: "Ok, joining lobby...", isMe: false));
+      notifyListeners();
+    });
   }
 }

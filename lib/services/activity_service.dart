@@ -1,31 +1,38 @@
 import 'package:flutter/material.dart';
-import '../models/activity_model.dart';
 
-class ActivityService with ChangeNotifier {
+// 1. Define the Enum
+enum ActivityType { game, friend, message, other }
+
+// 2. Define the Model
+class ActivityItem {
+  final String text;
+  final DateTime timestamp;
+  final ActivityType type;
+
+  ActivityItem({
+    required this.text,
+    required this.timestamp,
+    required this.type
+  });
+}
+
+class ActivityService extends ChangeNotifier {
+  // 3. Mock Data
   final List<ActivityItem> _activityItems = [
     ActivityItem(
-      title: 'Bob sent you a game invite!',
-      subtitle: 'Game: Halo - 10 minutes ago',
-      icon: Icons.person_add,
-      type: ActivityType.game,
+        text: "Played Cyber Racer",
+        timestamp: DateTime.now(),
+        type: ActivityType.game
     ),
     ActivityItem(
-      title: 'Alice is now online',
-      subtitle: '1 hour ago',
-      icon: Icons.wifi,
-      type: ActivityType.friend,
+        text: "Alex_99 sent a request",
+        timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+        type: ActivityType.friend
     ),
     ActivityItem(
-      title: 'You unlocked a new achievement',
-      subtitle: 'Game: Doom - Yesterday',
-      icon: Icons.star_border,
-      type: ActivityType.game,
-    ),
-    ActivityItem(
-      title: 'Charlie sent you a friend request',
-      subtitle: '2 days ago',
-      icon: Icons.person_add_alt_1,
-      type: ActivityType.friend,
+        text: "New high score in Space Tanks",
+        timestamp: DateTime.now().subtract(const Duration(days: 1)),
+        type: ActivityType.game
     ),
   ];
 
@@ -33,6 +40,6 @@ class ActivityService with ChangeNotifier {
 
   void clearActivities() {
     _activityItems.clear();
-    notifyListeners(); // This tells the UI to rebuild
+    notifyListeners();
   }
 }

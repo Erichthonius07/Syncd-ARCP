@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^6.1.0  # NEW: For modern typography
+  flutter_animate: ^4.2.0 # NEW: For spring physics
   cupertino_icons: ^1.0.6
   provider: ^6.1.2
 

@@ -1,98 +1,58 @@
 import 'package:flutter/material.dart';
-import '../models/game_model.dart';
-import '../widgets/app_background.dart';
-import '../widgets/pulsing_button.dart';
-import 'host_screen.dart';
-import 'join_screen.dart';
+import '../widgets/dot_grid_background.dart';
+import '../widgets/neo_card.dart';
+import '../theme.dart';
 
 class GameDetailScreen extends StatelessWidget {
-  final Game game;
-  const GameDetailScreen({super.key, required this.game});
+  final String gameName;
+
+  const GameDetailScreen({super.key, this.gameName = "Unknown Game"});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(game.name),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Stack(
-        children: [
-          const AppBackground(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+      body: DotGridBackground(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Spacer(),
-                Hero(
-                  tag: 'game_icon_${game.name}',
-                  child: Icon(
-                    game.icon,
-                    size: 100,
-                    color: theme.colorScheme.secondary,
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.arrow_back, size: 32),
+                ),
+                const SizedBox(height: 20),
+                Text("DETAILS", style: AppTheme.textTheme.labelSmall),
+                Text(gameName.toUpperCase(), style: AppTheme.textTheme.displayLarge),
+
+                const SizedBox(height: 40),
+
+                // Host Button
+                NeoCard(
+                  color: AppTheme.cyberYellow,
+                  isButton: true,
+                  onTap: () => Navigator.pushNamed(context, '/host'),
+                  child: const Center(
+                    child: Text("HOST GAME", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  game.name,
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
+
+                const SizedBox(height: 16),
+
+                // Join Button
+                NeoCard(
+                  color: Colors.white,
+                  isButton: true,
+                  onTap: () => Navigator.pushNamed(context, '/join'),
+                  child: const Center(
+                    child: Text("JOIN LOBBY", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  "Ready to play? Host or join a session!",
-                  style: theme.textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const JoinScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text("Join"),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: PulsingButton(
-                          text: "Host",
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HostScreen(game: game),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,119 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/friend_service.dart';
-import '../widgets/add_friend_dialog.dart';
-import '../widgets/app_background.dart';
-import '../widgets/empty_state_widget.dart';
+import '../widgets/dot_grid_background.dart';
+import '../widgets/neo_card.dart';
+import '../theme.dart';
 
 class FriendsManagementScreen extends StatelessWidget {
   const FriendsManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final friendService = context.watch<FriendService>();
-    final friends = friendService.friends;
-    final requests = friendService.friendRequests;
+    final friendService = Provider.of<FriendService>(context);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          title: const Text('Manage Friends'),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          bottom: TabBar(
-            tabs: [
-              const Tab(text: 'All Friends'),
-              Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      body: DotGridBackground(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    const Text('Requests'),
-                    if (requests.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      CircleAvatar(
-                        backgroundColor: theme.colorScheme.secondary,
-                        radius: 12,
-                        child: Text(
-                          requests.length.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.arrow_back, size: 32),
+                    ),
+                    const SizedBox(width: 16),
+                    const Text("REQUESTS", style: TextStyle(fontFamily: 'Pixer', fontSize: 32)),
                   ],
                 ),
-              ),
-            ],
-          ),
-        ),
-        body: Stack(
-          children: [
-            const AppBackground(),
-            SafeArea(
-              child: TabBarView(
-                children: [
-                  // "All Friends" Tab
-                  ListView.builder(
-                    itemCount: friends.length,
-                    itemBuilder: (context, index) {
-                      final friend = friends[index];
-                      return ListTile(
-                        leading: Icon(friend.avatar, color: theme.colorScheme.primary),
-                        title: Text(friend.name, style: const TextStyle(color: Colors.white)),
-                        subtitle: Text('Online', style: TextStyle(color: theme.colorScheme.primary)),
-                        trailing: Icon(Icons.more_vert, color: theme.colorScheme.onSurface),
-                      );
-                    },
-                  ),
-                  // "Requests" Tab
-                  requests.isEmpty
-                      ? const EmptyStateWidget(
-                    icon: Icons.person_add_disabled_outlined,
-                    message: "You have no pending friend requests.",
-                  )
+                const SizedBox(height: 20),
+
+                Expanded(
+                  child: friendService.friendRequests.isEmpty
+                      ? Center(child: Text("NO PENDING INVITES", style: AppTheme.textTheme.labelSmall))
                       : ListView.builder(
-                    itemCount: requests.length,
+                    itemCount: friendService.friendRequests.length,
                     itemBuilder: (context, index) {
-                      final request = requests[index];
-                      return ListTile(
-                        leading: const Icon(Icons.person, color: Colors.white70),
-                        title: Text(request.name, style: const TextStyle(color: Colors.white)),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.check_circle, color: Colors.green),
-                              onPressed: () => friendService.acceptRequest(request),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.cancel, color: Colors.red),
-                              onPressed: () => friendService.declineRequest(request),
-                            ),
-                          ],
+                      final request = friendService.friendRequests[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: NeoCard(
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.cyberYellow,
+                                  border: Border.all(width: 2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.person_add),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(request.name, style: AppTheme.textTheme.bodyLarge),
+                              ),
+                              // Accept
+                              GestureDetector(
+                                onTap: () => friendService.acceptRequest(request),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.matrixGreen,
+                                    border: Border.all(width: 2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.check, size: 20),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Decline
+                              GestureDetector(
+                                onTap: () => friendService.declineRequest(request),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.hotPink,
+                                    border: Border.all(width: 2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(Icons.close, size: 20, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => AddFriendDialog(friendService: friendService),
-            );
-          },
-          child: const Icon(Icons.person_add_alt_1),
+          ),
         ),
       ),
     );

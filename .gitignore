@@ -1,8 +1,12 @@
-# Miscellaneous
+# =========================
+# Misc / System files
+# =========================
 *.class
 *.log
 *.pyc
 *.swp
+*.tmp
+*.temp
 .DS_Store
 .atom/
 .build/
@@ -11,19 +15,25 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+Thumbs.db
+ehthumbs.db
+*.stackdump
 
-# IntelliJ related
+# =========================
+# IDE / Editor
+# =========================
+# IntelliJ IDEA
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code
+.vscode/
 
-# Flutter/Dart/Pub related
+# =========================
+# Flutter / Dart / Mobile
+# =========================
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
@@ -39,7 +49,25 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Android build artifacts
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+
+# =========================
+# Java / Spring Boot Backend
+# =========================
+
+
+# Maven wrapper & settings (keep .mvn if you want, remove from here)
+# If you want to keep the wrapper in git, comment the next line
+# backend/.mvn/
+
+# Common Java artifacts
+*.jar
+*.war
+*.ear
+.classpath
+.project
+.settings/
+

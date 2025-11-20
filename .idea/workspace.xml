@@ -4,7 +4,39 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35ef8edd-ea6b-404f-8897-4cb3bd463ed0" name="Changes" comment="" />
+    <list default="true" id="35ef8edd-ea6b-404f-8897-4cb3bd463ed0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/screens/feedback_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screens/game_selection_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screens/login_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screens/report_bug_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/screens/settings_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/widgets/create_squad_dialog.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/widgets/dot_grid_background.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/widgets/main_menu_dialog.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/widgets/neo_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/activity_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/activity_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/friend_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/friend_detail_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/friends_management_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/friends_management_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/game_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/game_detail_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/host_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/host_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/join_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/join_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/splash_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/activity_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/activity_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/chat_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/chat_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/friend_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/friend_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/theme.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/theme.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/app_background.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/friend_list_view.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/game_list_view.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/widget_test.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -71,5 +103,28 @@
       <updated>1758255158885</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

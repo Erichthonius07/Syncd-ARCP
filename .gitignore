@@ -58,16 +58,20 @@ app.*.map.json
 # Java / Spring Boot Backend
 # =========================
 
-
 # Maven wrapper & settings (keep .mvn if you want, remove from here)
 # If you want to keep the wrapper in git, comment the next line
 # backend/.mvn/
 
 # Common Java artifacts
+/backend/target/
 *.jar
 *.war
 *.ear
+*.class
 .classpath
 .project
 .settings/
 
+# IDE settings
+.idea/
+*.iml

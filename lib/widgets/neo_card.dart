@@ -4,15 +4,15 @@ import '../theme.dart';
 class NeoCard extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
-  final Color color;
+  final Color? color;
   final double? height;
-  final bool isButton; // If true, behaves like a physical arcade button
+  final bool isButton;
 
   const NeoCard({
     super.key,
     required this.child,
     this.onTap,
-    this.color = Colors.white,
+    this.color,
     this.height,
     this.isButton = false,
   });
@@ -26,28 +26,31 @@ class _NeoCardState extends State<NeoCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? Colors.white : Colors.black;
+    final defaultCardColor = Theme.of(context).cardColor;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
       onTap: widget.onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 50), // Snappy response
+        duration: const Duration(milliseconds: 50),
         height: widget.height,
-        // Arcade Button Physics: Move down and to the right
         transform: _isPressed
             ? Matrix4.translationValues(AppTheme.shadowOffset, AppTheme.shadowOffset, 0)
             : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: widget.color,
-          borderRadius: BorderRadius.circular(12), // Slightly tighter corners for tech feel
-          border: Border.all(color: AppTheme.border, width: AppTheme.borderWidth),
+          color: widget.color ?? defaultCardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor, width: AppTheme.borderWidth),
           boxShadow: _isPressed
               ? []
               : [
-            const BoxShadow(
-              color: AppTheme.border,
-              offset: Offset(AppTheme.shadowOffset, AppTheme.shadowOffset),
+            BoxShadow(
+              color: borderColor,
+              offset: const Offset(AppTheme.shadowOffset, AppTheme.shadowOffset),
               blurRadius: 0,
             )
           ],

@@ -1,41 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// 1. Theme Provider to manage state
+class ThemeProvider extends ChangeNotifier {
+  ThemeMode themeMode = ThemeMode.light;
+
+  bool get isDarkMode => themeMode == ThemeMode.dark;
+
+  void toggleTheme(bool isDark) {
+    themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+  }
+}
+
 class AppTheme {
-  // --- Gamer Pop Palette ---
-  static const Color background = Color(0xFFF4F4F0); // "Old Paper" White
-  static const Color textMain = Color(0xFF121212);   // Ink Black
+  // --- PALETTE ---
+  static const Color cyberYellow = Color(0xFFFFE600);
+  static const Color electricBlue = Color(0xFF2DE1FC);
+  static const Color hotPink = Color(0xFFFF006E);
+  static const Color matrixGreen = Color(0xFF06D6A0);
 
-  // Electric Accents
-  static const Color cyberYellow = Color(0xFFFFE600); // Arcade Coin
-  static const Color electricBlue = Color(0xFF2DE1FC); // Glitch Blue
-  static const Color hotPink = Color(0xFFFF006E);     // 80s Neon
-  static const Color matrixGreen = Color(0xFF06D6A0); // Success/Online
-  static const Color consoleGrey = Color(0xFFE0E0E0); // Controller Plastic
+  // Light Mode Colors
+  static const Color bgLight = Color(0xFFF4F4F0);
+  static const Color textLight = Color(0xFF121212);
+  static const Color cardLight = Colors.white;
+  static const Color consoleGreyLight = Color(0xFFE0E0E0);
 
-  // The "Ink" properties
-  static const Color border = Colors.black;
+  // Dark Mode Colors
+  static const Color bgDark = Color(0xFF121212);
+  static const Color textDark = Color(0xFFF4F4F0);
+  static const Color cardDark = Color(0xFF1E1E1E); // Dark Grey
+  static const Color consoleGreyDark = Color(0xFF2C2C2C);
+
   static const double borderWidth = 3.0;
-  static const double shadowOffset = 5.0; // Deep clicky buttons
+  static const double shadowOffset = 5.0;
 
-  static TextTheme textTheme = TextTheme(
-    // PIXER is non-negotiable for the Gamer Feel
-    displayLarge: const TextStyle(fontFamily: 'Pixer', fontSize: 36, color: textMain),
-    displayMedium: const TextStyle(fontFamily: 'Pixer', fontSize: 24, color: textMain),
-    displaySmall: const TextStyle(fontFamily: 'Pixer', fontSize: 18, color: textMain),
+  // --- TEXT STYLES (Dynamic Color) ---
+  static TextTheme _buildTextTheme(Color color) {
+    return TextTheme(
+      displayLarge: TextStyle(fontFamily: 'Pixer', fontSize: 36, color: color),
+      displayMedium: TextStyle(fontFamily: 'Pixer', fontSize: 24, color: color),
+      displaySmall: TextStyle(fontFamily: 'Pixer', fontSize: 18, color: color),
+      bodyLarge: GoogleFonts.spaceGrotesk(fontSize: 18, fontWeight: FontWeight.w700, color: color),
+      bodyMedium: GoogleFonts.spaceGrotesk(fontSize: 15, fontWeight: FontWeight.w500, color: color),
+      labelSmall: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.bold, color: color.withValues(alpha: 0.6)),
+    );
+  }
 
-    // Space Grotesk feels "Techy" but clean
-    bodyLarge: GoogleFonts.spaceGrotesk(fontSize: 18, fontWeight: FontWeight.w700, color: textMain),
-    bodyMedium: GoogleFonts.spaceGrotesk(fontSize: 15, fontWeight: FontWeight.w500, color: textMain),
-    labelSmall: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.bold, color: textMain.withValues(alpha: 0.6)),
-  );
-
-  static ThemeData get themeData {
+  // --- THEME DATA GENERATORS ---
+  static ThemeData get lightTheme {
     return ThemeData(
-      scaffoldBackgroundColor: background,
-      textTheme: textTheme,
-      iconTheme: const IconThemeData(color: textMain, size: 28),
       brightness: Brightness.light,
+      scaffoldBackgroundColor: bgLight,
+      primaryColor: electricBlue,
+      iconTheme: const IconThemeData(color: textLight, size: 28),
+      textTheme: _buildTextTheme(textLight),
+      cardColor: cardLight,
+      dividerColor: Colors.black,
+    );
+  }
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: bgDark,
+      primaryColor: electricBlue,
+      iconTheme: const IconThemeData(color: textDark, size: 28),
+      textTheme: _buildTextTheme(textDark),
+      cardColor: cardDark,
+      dividerColor: Colors.white, // Borders become white in dark mode
     );
   }
 }

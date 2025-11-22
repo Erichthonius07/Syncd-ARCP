@@ -23,13 +23,13 @@ class JoinScreen extends StatelessWidget {
                   child: const Icon(Icons.close, size: 32),
                 ),
                 const SizedBox(height: 40),
-                const Text("ENTER CODE", style: TextStyle(fontFamily: 'Pixer', fontSize: 32)),
-                Text("Ask your host for the ID", style: AppTheme.textTheme.bodyMedium),
+                Text("ENTER CODE", style: Theme.of(context).textTheme.displayLarge),
+                Text("Ask your host for the ID", style: Theme.of(context).textTheme.bodyMedium),
 
                 const Spacer(),
 
                 NeoCard(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   child: TextField(
                     controller: controller,
                     textAlign: TextAlign.center,
@@ -41,7 +41,6 @@ class JoinScreen extends StatelessWidget {
 
                 const Spacer(),
 
-                // CONNECT BUTTON FIX
                 NeoCard(
                   onTap: () {
                     if (controller.text.isEmpty) {
@@ -50,13 +49,13 @@ class JoinScreen extends StatelessWidget {
                     }
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Joining ${controller.text}...")));
                     Future.delayed(const Duration(seconds: 1), () {
-                      Navigator.pushReplacementNamed(context, '/home');
+                      if(context.mounted) Navigator.pushReplacementNamed(context, '/home');
                     });
                   },
                   color: AppTheme.matrixGreen,
                   isButton: true,
                   child: const Center(
-                    child: Text("CONNECT ->", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+                    child: Text("CONNECT ->", style: TextStyle(fontFamily: 'Pixer', fontSize: 24, color: Colors.black)),
                   ),
                 ),
                 const SizedBox(height: 20),

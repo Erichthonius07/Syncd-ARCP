@@ -23,30 +23,28 @@ class GameDetailScreen extends StatelessWidget {
                   child: const Icon(Icons.arrow_back, size: 32),
                 ),
                 const SizedBox(height: 20),
-                Text("DETAILS", style: AppTheme.textTheme.labelSmall),
-                Text(gameName.toUpperCase(), style: AppTheme.textTheme.displayLarge),
+                Text("DETAILS", style: Theme.of(context).textTheme.labelSmall),
+                Text(gameName.toUpperCase(), style: Theme.of(context).textTheme.displayLarge),
 
                 const SizedBox(height: 40),
 
-                // Host Button
                 NeoCard(
                   color: AppTheme.cyberYellow,
                   isButton: true,
                   onTap: () => Navigator.pushNamed(context, '/host'),
                   child: const Center(
-                    child: Text("HOST GAME", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+                    child: Text("HOST GAME", style: TextStyle(fontFamily: 'Pixer', fontSize: 24, color: Colors.black)),
                   ),
                 ),
 
                 const SizedBox(height: 16),
 
-                // Join Button
                 NeoCard(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   isButton: true,
                   onTap: () => Navigator.pushNamed(context, '/join'),
-                  child: const Center(
-                    child: Text("JOIN LOBBY", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+                  child: Center(
+                    child: Text("JOIN LOBBY", style: TextStyle(fontFamily: 'Pixer', fontSize: 24, color: Theme.of(context).textTheme.bodyLarge!.color)),
                   ),
                 ),
               ],

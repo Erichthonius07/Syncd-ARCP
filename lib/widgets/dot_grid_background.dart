@@ -9,13 +9,11 @@ class DotGridBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // The Grid Painter
         Positioned.fill(
           child: CustomPaint(
-            painter: GridPainter(),
+            painter: GridPainter(context),
           ),
         ),
-        // The Content
         child,
       ],
     );
@@ -23,10 +21,16 @@ class DotGridBackground extends StatelessWidget {
 }
 
 class GridPainter extends CustomPainter {
+  final BuildContext context;
+  GridPainter(this.context);
+
   @override
   void paint(Canvas canvas, Size size) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final paint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.05) // Subtle dots
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.1)
+          : Colors.black.withValues(alpha: 0.05)
       ..strokeWidth = 2;
 
     const double spacing = 25.0;

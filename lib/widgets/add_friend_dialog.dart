@@ -1,44 +1,63 @@
 import 'package:flutter/material.dart';
-import '../services/friend_service.dart'; // Import the service
+import 'package:provider/provider.dart';
+import '../services/friend_service.dart';
+import '../theme.dart';
+import 'neo_card.dart';
 
 class AddFriendDialog extends StatefulWidget {
-  final FriendService friendService;
-  const AddFriendDialog({super.key, required this.friendService});
+  const AddFriendDialog({super.key});
 
   @override
   State<AddFriendDialog> createState() => _AddFriendDialogState();
 }
 
 class _AddFriendDialogState extends State<AddFriendDialog> {
-  final _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: const Color(0xFF1B1717),
-      title: const Text('Add a Friend'),
-      content: TextField(
-        controller: _controller, // Use a controller to get the text
-        decoration: const InputDecoration(
-          hintText: "Enter friend's username",
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: NeoCard(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("ADD FRIEND", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+            const SizedBox(height: 20),
+
+            NeoCard(
+              color: Theme.of(context).cardColor,
+              child: TextField(
+                controller: _controller,
+                style: Theme.of(context).textTheme.bodyLarge,
+                decoration: const InputDecoration(
+                  hintText: "Enter username...",
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            NeoCard(
+              isButton: true,
+              color: AppTheme.electricBlue,
+              onTap: () {
+                if (_controller.text.isNotEmpty) {
+                  // Access provider internally
+                  Provider.of<FriendService>(context, listen: false).sendFriendRequest(_controller.text);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Request sent to ${_controller.text}")));
+                }
+              },
+              child: const Center(
+                child: Text("SEND REQUEST", style: TextStyle(fontFamily: 'Pixer', fontSize: 18, color: Colors.black)),
+              ),
+            )
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            // ✅ WIRE UP the "Send Request" button
-            if (_controller.text.isNotEmpty) {
-              widget.friendService.sendFriendRequest(_controller.text);
-            }
-            Navigator.of(context).pop();
-          },
-          child: const Text('Send Request'),
-        ),
-      ],
     );
   }
 }

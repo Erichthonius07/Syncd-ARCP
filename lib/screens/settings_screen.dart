@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
 import '../theme.dart';
@@ -16,6 +17,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       body: DotGridBackground(
         child: SafeArea(
@@ -39,14 +42,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildToggle("NOTIFICATIONS", _notifications, (v) => setState(() => _notifications = v)),
                 const SizedBox(height: 16),
                 _buildToggle("GAME SOUNDS", _sounds, (v) => setState(() => _sounds = v)),
+                const SizedBox(height: 16),
+                _buildToggle("DARK MODE", themeProvider.isDarkMode, (v) => themeProvider.toggleTheme(v)),
 
                 const SizedBox(height: 40),
                 const Text("ACCOUNT", style: TextStyle(fontFamily: 'Pixer', fontSize: 18)),
                 const SizedBox(height: 16),
 
-                // PASSWORD FIX
                 NeoCard(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   onTap: () {
                     showDialog(
                       context: context,
@@ -63,9 +67,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // PRIVACY FIX
                 NeoCard(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Opening Browser..."))),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -82,13 +85,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildToggle(String title, bool value, Function(bool) onChanged) {
     return NeoCard(
-      color: value ? AppTheme.matrixGreen : Colors.white,
+      color: value ? AppTheme.matrixGreen : Theme.of(context).cardColor,
       onTap: () => onChanged(!value),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Icon(value ? Icons.toggle_on : Icons.toggle_off, size: 32),
+          Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: value ? Colors.black : Theme.of(context).textTheme.bodyLarge!.color)),
+          Icon(value ? Icons.toggle_on : Icons.toggle_off, size: 32, color: value ? Colors.black : Theme.of(context).iconTheme.color),
         ],
       ),
     );

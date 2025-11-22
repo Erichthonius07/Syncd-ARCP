@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/friend_service.dart';
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
+import '../widgets/add_friend_dialog.dart';
 import '../theme.dart';
 
 class FriendsManagementScreen extends StatelessWidget {
@@ -34,7 +35,7 @@ class FriendsManagementScreen extends StatelessWidget {
 
                 Expanded(
                   child: friendService.friendRequests.isEmpty
-                      ? Center(child: Text("NO PENDING INVITES", style: AppTheme.textTheme.labelSmall))
+                      ? Center(child: Text("NO PENDING INVITES", style: Theme.of(context).textTheme.labelSmall))
                       : ListView.builder(
                     itemCount: friendService.friendRequests.length,
                     itemBuilder: (context, index) {
@@ -51,13 +52,12 @@ class FriendsManagementScreen extends StatelessWidget {
                                   border: Border.all(width: 2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.person_add),
+                                child: const Icon(Icons.person_add, color: Colors.black),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: Text(request.name, style: AppTheme.textTheme.bodyLarge),
+                                child: Text(request.name, style: Theme.of(context).textTheme.bodyLarge),
                               ),
-                              // Accept
                               GestureDetector(
                                 onTap: () => friendService.acceptRequest(request),
                                 child: Container(
@@ -67,11 +67,10 @@ class FriendsManagementScreen extends StatelessWidget {
                                     border: Border.all(width: 2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(Icons.check, size: 20),
+                                  child: const Icon(Icons.check, size: 20, color: Colors.black),
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // Decline
                               GestureDetector(
                                 onTap: () => friendService.declineRequest(request),
                                 child: Container(
@@ -95,6 +94,16 @@ class FriendsManagementScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        // This call now matches the AddFriendDialog constructor perfectly
+        onPressed: () => showDialog(context: context, builder: (_) => const AddFriendDialog()),
+        backgroundColor: AppTheme.matrixGreen,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            side: BorderSide(color: Colors.black, width: 2)
+        ),
+        child: const Icon(Icons.person_add, color: Colors.black),
       ),
     );
   }

@@ -13,6 +13,11 @@ class ActivityScreen extends StatelessWidget {
     final activityService = Provider.of<ActivityService>(context);
     final activities = activityService.activityItems;
 
+    // Theme Logic
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final consoleColor = isDark ? AppTheme.consoleGreyDark : AppTheme.consoleGreyLight;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       body: DotGridBackground(
         child: SafeArea(
@@ -46,19 +51,19 @@ class ActivityScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.consoleGrey,
-                                  border: Border.all(width: 2),
+                                  color: consoleColor, // Fixed
+                                  border: Border.all(width: 2, color: isDark ? Colors.white : Colors.black),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Icon(_getIconForType(item.type), size: 20),
+                                child: Icon(_getIconForType(item.type), size: 20, color: Theme.of(context).iconTheme.color),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(item.text, style: AppTheme.textTheme.bodyMedium),
-                                    Text("Just now", style: AppTheme.textTheme.labelSmall),
+                                    Text(item.text, style: textTheme.bodyMedium), // Fixed
+                                    Text("Just now", style: textTheme.labelSmall), // Fixed
                                   ],
                                 ),
                               ),

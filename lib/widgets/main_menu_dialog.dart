@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../services/friend_service.dart';
 import '../theme.dart';
 import 'neo_card.dart';
-
 import '../screens/settings_screen.dart';
 import '../screens/feedback_screen.dart';
 import '../screens/report_bug_screen.dart';
@@ -14,20 +13,21 @@ class MainMenuDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final friendService = Provider.of<FriendService>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppTheme.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(top: BorderSide(width: 3)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor, // Dynamic Background
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(top: BorderSide(width: 3, color: isDark ? Colors.white : Colors.black)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 40, height: 6,
-            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(3)),
+            decoration: BoxDecoration(color: isDark ? Colors.white : Colors.black, borderRadius: BorderRadius.circular(3)),
           ),
           const SizedBox(height: 30),
 
@@ -43,7 +43,7 @@ class MainMenuDialog extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppTheme.electricBlue,
                         shape: BoxShape.circle,
-                        border: Border.all(width: 3),
+                        border: Border.all(width: 3, color: isDark ? Colors.white : Colors.black),
                       ),
                       child: Center(
                           child: Text(
@@ -61,7 +61,7 @@ class MainMenuDialog extends StatelessWidget {
                           shape: BoxShape.circle,
                           border: Border.all(width: 2),
                         ),
-                        child: const Icon(Icons.edit, size: 10),
+                        child: const Icon(Icons.edit, size: 10, color: Colors.black),
                       ),
                     )
                   ],
@@ -77,7 +77,7 @@ class MainMenuDialog extends StatelessWidget {
                         Flexible(
                           child: Text(
                             friendService.currentUserName,
-                            style: AppTheme.textTheme.displayMedium!.copyWith(fontSize: 20),
+                            style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: 20),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -88,7 +88,7 @@ class MainMenuDialog extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text("Online Status: Visible", style: AppTheme.textTheme.labelSmall),
+                    Text("Online Status: Visible", style: Theme.of(context).textTheme.labelSmall),
                   ],
                 ),
               ),
@@ -96,7 +96,6 @@ class MainMenuDialog extends StatelessWidget {
           ),
           const SizedBox(height: 30),
 
-          // Menu Options
           _buildMenuOption(context, "SETTINGS", Icons.settings, AppTheme.electricBlue, () {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
@@ -105,12 +104,10 @@ class MainMenuDialog extends StatelessWidget {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackScreen()));
           }),
-          _buildMenuOption(context, "REPORT BUG", Icons.bug_report, Colors.white, () {
+          _buildMenuOption(context, "REPORT BUG", Icons.bug_report, Theme.of(context).cardColor, () {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportBugScreen()));
           }),
-
-          // LOGOUT FIX
           _buildMenuOption(context, "LOGOUT", Icons.exit_to_app, AppTheme.hotPink, () {
             Navigator.pop(context);
             Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
@@ -131,7 +128,7 @@ class MainMenuDialog extends StatelessWidget {
         isButton: true,
         child: Row(
           children: [
-            Icon(icon, color: Colors.black),
+            Icon(icon, color: Colors.black), // Icons on buttons always black for contrast on Pop colors
             const SizedBox(width: 16),
             Text(text, style: const TextStyle(fontFamily: 'Pixer', fontSize: 18, color: Colors.black)),
           ],
@@ -142,30 +139,31 @@ class MainMenuDialog extends StatelessWidget {
 
   void _showEditProfileDialog(BuildContext context, FriendService service) {
     final TextEditingController controller = TextEditingController(text: service.currentUserName);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
         context: context,
         builder: (ctx) => Dialog(
           backgroundColor: Colors.transparent,
           child: NeoCard(
-            color: AppTheme.background,
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("EDIT PROFILE", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+                Text("EDIT PROFILE", style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: 24)),
                 const SizedBox(height: 16),
 
                 NeoCard(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   child: TextField(
                     controller: controller,
-                    style: AppTheme.textTheme.bodyLarge,
+                    style: Theme.of(context).textTheme.bodyLarge,
                     decoration: const InputDecoration(hintText: "Enter new name", border: InputBorder.none),
                   ),
                 ),
 
                 const SizedBox(height: 20),
-                const Align(alignment: Alignment.centerLeft, child: Text("CHOOSE ICON", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                Align(alignment: Alignment.centerLeft, child: Text("CHOOSE ICON", style: Theme.of(context).textTheme.labelSmall)),
                 const SizedBox(height: 8),
                 SizedBox(
                   height: 120,
@@ -179,8 +177,8 @@ class MainMenuDialog extends StatelessWidget {
                         onTap: () => service.updateAvatar(avatar),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: isSelected ? AppTheme.cyberYellow : Colors.white,
-                            border: Border.all(width: 2),
+                            color: isSelected ? AppTheme.cyberYellow : Theme.of(context).cardColor,
+                            border: Border.all(width: 2, color: isDark ? Colors.white : Colors.black),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(child: Text(avatar, style: const TextStyle(fontSize: 20))),
@@ -198,7 +196,7 @@ class MainMenuDialog extends StatelessWidget {
                     if (controller.text.isNotEmpty) service.updateName(controller.text);
                     Navigator.pop(ctx);
                   },
-                  child: const Center(child: Text("SAVE", style: TextStyle(fontFamily: 'Pixer', fontSize: 18))),
+                  child: const Center(child: Text("SAVE", style: TextStyle(fontFamily: 'Pixer', fontSize: 18, color: Colors.black))),
                 )
               ],
             ),

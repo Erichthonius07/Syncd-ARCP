@@ -10,7 +10,7 @@ import 'screens/host_screen.dart';
 import 'screens/join_screen.dart';
 import 'screens/friend_detail_screen.dart';
 import 'screens/activity_screen.dart';
-import 'screens/my_games_screen.dart'; // New Import
+import 'screens/my_games_screen.dart';
 
 // Services
 import 'services/friend_service.dart';
@@ -21,7 +21,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()), // Theme State
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => FriendService()),
         ChangeNotifierProvider(create: (_) => ChatService()),
         ChangeNotifierProvider(create: (_) => ActivityService()),
@@ -41,17 +41,13 @@ class SyncApp extends StatelessWidget {
     return MaterialApp(
       title: "Sync'd",
       debugShowCheckedModeBanner: false,
-
-      // Theme Logic
       themeMode: themeProvider.themeMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-
       initialRoute: '/',
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
           final args = settings.arguments;
-          // Handle both String (Friend) and Map (Squad) arguments
           if (args is String) {
             return MaterialPageRoute(builder: (_) => FriendDetailScreen(friendName: args));
           } else if (args is Map) {
@@ -70,7 +66,7 @@ class SyncApp extends StatelessWidget {
         '/host': (context) => const HostScreen(),
         '/join': (context) => const JoinScreen(),
         '/activity': (context) => const ActivityScreen(),
-        '/games': (context) => const MyGamesScreen(), // New Route
+        '/games': (context) => const MyGamesScreen(),
       },
     );
   }

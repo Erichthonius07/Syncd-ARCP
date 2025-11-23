@@ -16,6 +16,8 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.c(context);
+
     return Scaffold(
       body: DotGridBackground(
         child: SafeArea(
@@ -27,7 +29,7 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("MY GAMES", style: TextStyle(fontFamily: 'Pixer', fontSize: 32)),
+                    const Text("LIBRARY", style: TextStyle(fontFamily: 'Pixer', fontSize: 32)),
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: const Icon(Icons.close, size: 32),
@@ -36,14 +38,14 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                const Text("INSTALLED", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+                const Text("SYNC'D SPACE", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
                 const SizedBox(height: 16),
-                _buildGameGrid(myGames, isInstalled: true),
+                _buildGameGrid(myGames, isInstalled: true, colors: colors),
 
                 const SizedBox(height: 30),
-                const Text("STORE", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+                const Text("ON DEVICE", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
                 const SizedBox(height: 16),
-                _buildGameGrid(availableGames, isInstalled: false),
+                _buildGameGrid(availableGames, isInstalled: false, colors: colors),
               ],
             ),
           ),
@@ -52,14 +54,14 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
     );
   }
 
-  Widget _buildGameGrid(List<String> games, {required bool isInstalled}) {
+  Widget _buildGameGrid(List<String> games, {required bool isInstalled, required SyncPalette colors}) {
     if (games.isEmpty) {
       return NeoCard(
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          child: const Text("No games found.", textAlign: TextAlign.center),
-        ),
+          child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              child: const Text("No games found.", textAlign: TextAlign.center)
+          )
       );
     }
 
@@ -67,7 +69,10 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
       flex: isInstalled ? 3 : 2,
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 1.0
+            crossAxisCount: 2,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1.0
         ),
         itemCount: games.length,
         itemBuilder: (context, index) {
@@ -76,10 +81,20 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.videogame_asset, size: 40, color: isInstalled ? AppTheme.electricBlue : Colors.grey),
+                Icon(
+                    Icons.videogame_asset,
+                    size: 40,
+                    color: isInstalled ? colors.actionLibrary : Colors.grey
+                ),
                 const SizedBox(height: 8),
-                Text(game, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
+                Text(
+                    game,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge
+                ),
                 const Spacer(),
+
+                // --- FIX: Use a standard block for multiple actions ---
                 GestureDetector(
                   onTap: () {
                     setState(() {
@@ -99,7 +114,11 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(width: 2),
                     ),
-                    child: Icon(isInstalled ? Icons.delete : Icons.download, size: 16, color: Colors.white),
+                    child: Icon(
+                        isInstalled ? Icons.remove : Icons.add,
+                        size: 16,
+                        color: Colors.black
+                    ),
                   ),
                 )
               ],

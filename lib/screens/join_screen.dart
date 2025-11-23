@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
 import '../theme.dart';
+import 'guest_lobby_screen.dart'; // Import the new screen
 
 class JoinScreen extends StatelessWidget {
   const JoinScreen({super.key});
@@ -9,6 +10,7 @@ class JoinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController controller = TextEditingController();
+    final colors = AppTheme.c(context);
 
     return Scaffold(
       body: DotGridBackground(
@@ -20,7 +22,7 @@ class JoinScreen extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, size: 32),
+                  child: Icon(Icons.close, size: 32, color: Theme.of(context).iconTheme.color),
                 ),
                 const SizedBox(height: 40),
                 Text("ENTER CODE", style: Theme.of(context).textTheme.displayLarge),
@@ -41,18 +43,27 @@ class JoinScreen extends StatelessWidget {
 
                 const Spacer(),
 
+                // CONNECT BUTTON FIX
                 NeoCard(
                   onTap: () {
                     if (controller.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.red, content: Text("Enter a code!")));
                       return;
                     }
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Joining ${controller.text}...")));
+
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Connecting to ${controller.text}...")));
+
+                    // Simulate Network Delay then Navigate
                     Future.delayed(const Duration(seconds: 1), () {
-                      if(context.mounted) Navigator.pushReplacementNamed(context, '/home');
+                      if (context.mounted) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => GuestLobbyScreen(lobbyCode: controller.text))
+                        );
+                      }
                     });
                   },
-                  color: AppTheme.matrixGreen,
+                  color: colors.success, // Green for Go
                   isButton: true,
                   child: const Center(
                     child: Text("CONNECT ->", style: TextStyle(fontFamily: 'Pixer', fontSize: 24, color: Colors.black)),

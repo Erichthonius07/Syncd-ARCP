@@ -23,7 +23,7 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("ADD FRIEND", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
+            Text("ADD FRIEND", style: Theme.of(context).textTheme.displayMedium!.copyWith(fontSize: 24)),
             const SizedBox(height: 20),
 
             NeoCard(
@@ -45,7 +45,6 @@ class _AddFriendDialogState extends State<AddFriendDialog> {
               color: AppTheme.electricBlue,
               onTap: () {
                 if (_controller.text.isNotEmpty) {
-                  // Access provider internally
                   Provider.of<FriendService>(context, listen: false).sendFriendRequest(_controller.text);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Request sent to ${_controller.text}")));

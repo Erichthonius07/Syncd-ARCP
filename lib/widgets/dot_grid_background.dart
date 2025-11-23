@@ -27,13 +27,14 @@ class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final paint = Paint()
       ..color = isDark
-          ? Colors.white.withValues(alpha: 0.1)
+          ? Colors.white.withValues(alpha: 0.08) // Subtle white dots on Void
           : Colors.black.withValues(alpha: 0.05)
       ..strokeWidth = 2;
 
-    const double spacing = 25.0;
+    const double spacing = 30.0;
 
     for (double x = 0; x < size.width; x += spacing) {
       for (double y = 0; y < size.height; y += spacing) {

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-// Removed unused 'dart:math' import
 
 // --- Models ---
 class Friend {
   final String name;
   final bool isOnline;
-  // Dynamic getter for avatar
   String get avatar => _getAvatarForName(name);
 
   Friend({required this.name, this.isOnline = false});
 
-  // Helper to generate avatar based on name hash
   static String _getAvatarForName(String name) {
     final avatars = ["👾", "👽", "🤖", "💀", "🐱‍👤", "👺", "🤡", "👻", "🐉", "🦕", "🐺", "🐯", "🕹️", "🎲", "⚡", "🍄", "🍕", "🍔", "🚀", "🪐"];
     if (name.isEmpty) return avatars[0];
@@ -40,7 +37,6 @@ class Squad {
 // --- Service ---
 class FriendService extends ChangeNotifier {
 
-  // 1. POOL OF AVATARS
   final List<String> _mascots = [
     "👾", "👽", "🤖", "💀", "🐱‍👤",
     "👺", "👹", "🤡", "👻", "🧟",
@@ -53,7 +49,6 @@ class FriendService extends ChangeNotifier {
   late String _currentUserAvatar;
 
   FriendService() {
-    // Initialize avatar based on default name
     _currentUserAvatar = _generateMascot(_currentUserName);
   }
 
@@ -61,7 +56,7 @@ class FriendService extends ChangeNotifier {
   String get currentUserAvatar => _currentUserAvatar;
   List<String> get availableAvatars => _mascots;
 
-  // 2. Data Lists
+  // Data Lists
   final List<Friend> _friends = [
     Friend(name: "Alex_99", isOnline: true),
     Friend(name: "Sam.R", isOnline: false),
@@ -88,21 +83,16 @@ class FriendService extends ChangeNotifier {
 
   // --- LOGIC ---
 
-  // Helper: Deterministic Avatar Generator
   String _generateMascot(String name) {
     if (name.isEmpty) return "👾";
     int index = name.hashCode.abs() % _mascots.length;
     return _mascots[index];
   }
 
-  // Method called by MainMenuDialog
-  void updateProfile(String newName) {
-    updateName(newName); // Redirects to updateName
-  }
+  void updateProfile(String newName) => updateName(newName);
 
   void updateName(String newName) {
     _currentUserName = newName;
-    // Auto-update avatar to match new name (Gamer style)
     _currentUserAvatar = _generateMascot(newName);
     notifyListeners();
   }
@@ -138,6 +128,42 @@ class FriendService extends ChangeNotifier {
         memberNames: members
     );
     _squads.add(newSquad);
+    notifyListeners();
+  }
+
+  void addMemberToSquad(String squadId, String memberName) {
+    final squadIndex = _squads.indexWhere((s) => s.id == squadId);
+    if (squadIndex != -1) {
+      final oldSquad = _squads[squadIndex];
+      // MAX 4 CHECK
+      if (!oldSquad.memberNames.contains(memberName) && oldSquad.memberNames.length < 4) {
+        final newMembers = List<String>.from(oldSquad.memberNames)..add(memberName);
+        _squads[squadIndex] = Squad(
+            id: oldSquad.id, name: oldSquad.name, creatorName: oldSquad.creatorName, memberNames: newMembers
+        );
+        notifyListeners();
+      }
+    }
+  }
+
+  // Remove someone else (Kick)
+  void removeMember(String squadId, String memberName) {
+    final squadIndex = _squads.indexWhere((s) => s.id == squadId);
+    if (squadIndex != -1) {
+      final oldSquad = _squads[squadIndex];
+      final newMembers = List<String>.from(oldSquad.memberNames)..remove(memberName);
+
+      _squads[squadIndex] = Squad(
+          id: oldSquad.id, name: oldSquad.name, creatorName: oldSquad.creatorName, memberNames: newMembers
+      );
+      notifyListeners();
+    }
+  }
+
+  // NEW: LEAVE SQUAD (Self)
+  // Removes the squad from your view entirely
+  void leaveSquad(String squadId) {
+    _squads.removeWhere((s) => s.id == squadId);
     notifyListeners();
   }
 }

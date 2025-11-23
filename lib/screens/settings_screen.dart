@@ -18,6 +18,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final colors = AppTheme.c(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backIconColor = isDark ? Colors.white : Colors.black;
 
     return Scaffold(
       body: DotGridBackground(
@@ -31,48 +34,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_back, size: 32),
+                      child: Icon(Icons.arrow_back, size: 32, color: backIconColor),
                     ),
                     const SizedBox(width: 16),
-                    const Text("SETTINGS", style: TextStyle(fontFamily: 'Pixer', fontSize: 32)),
+                    Text("SETTINGS", style: Theme.of(context).textTheme.displayLarge),
                   ],
                 ),
                 const SizedBox(height: 30),
 
-                _buildToggle("NOTIFICATIONS", _notifications, (v) => setState(() => _notifications = v)),
+                // Toggles
+                _buildToggle("NOTIFICATIONS", _notifications, (v) => setState(() => _notifications = v), colors),
                 const SizedBox(height: 16),
-                _buildToggle("GAME SOUNDS", _sounds, (v) => setState(() => _sounds = v)),
+                _buildToggle("GAME SOUNDS", _sounds, (v) => setState(() => _sounds = v), colors),
                 const SizedBox(height: 16),
-                _buildToggle("DARK MODE", themeProvider.isDarkMode, (v) => themeProvider.toggleTheme(v)),
+                _buildToggle("DARK MODE", themeProvider.isDarkMode, (v) => themeProvider.toggleTheme(v), colors),
 
                 const SizedBox(height: 40),
-                const Text("ACCOUNT", style: TextStyle(fontFamily: 'Pixer', fontSize: 18)),
+                Text("ACCOUNT", style: Theme.of(context).textTheme.displaySmall),
                 const SizedBox(height: 16),
 
                 NeoCard(
-                  color: Theme.of(context).cardColor,
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text("Reset Password", style: TextStyle(fontFamily: 'Pixer')),
-                        content: const Text("Link sent to email."),
-                        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("OK"))],
-                      ),
-                    );
-                  },
-                  child: const Row(
+                  color: colors.surface,
+                  onTap: () {},
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text("Change Password", style: TextStyle(fontWeight: FontWeight.bold)), Icon(Icons.lock_outline)],
+                    children: [
+                      Text("Change Password", style: Theme.of(context).textTheme.bodyLarge),
+                      Icon(Icons.lock_outline, color: colors.accentIcon),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
                 NeoCard(
-                  color: Theme.of(context).cardColor,
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Opening Browser..."))),
-                  child: const Row(
+                  color: colors.surface,
+                  onTap: () {},
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text("Privacy Policy", style: TextStyle(fontWeight: FontWeight.bold)), Icon(Icons.privacy_tip_outlined)],
+                    children: [
+                      Text("Privacy Policy", style: Theme.of(context).textTheme.bodyLarge),
+                      Icon(Icons.privacy_tip_outlined, color: colors.accentIcon),
+                    ],
                   ),
                 ),
               ],
@@ -83,15 +84,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildToggle(String title, bool value, Function(bool) onChanged) {
+  Widget _buildToggle(String title, bool value, Function(bool) onChanged, SyncPalette colors) {
     return NeoCard(
-      color: value ? AppTheme.matrixGreen : Theme.of(context).cardColor,
+      // If value is true, use Neon Green (Success). If false, use Surface.
+      color: value ? colors.success : colors.surface,
       onTap: () => onChanged(!value),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: value ? Colors.black : Theme.of(context).textTheme.bodyLarge!.color)),
-          Icon(value ? Icons.toggle_on : Icons.toggle_off, size: 32, color: value ? Colors.black : Theme.of(context).iconTheme.color),
+          // FIX: Removed manual color override. NeoCard handles it now.
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Pixer', fontSize: 18)),
+          Icon(value ? Icons.toggle_on : Icons.toggle_off, size: 32),
         ],
       ),
     );

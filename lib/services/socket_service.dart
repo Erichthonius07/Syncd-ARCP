@@ -54,7 +54,6 @@ class SocketService with ChangeNotifier {
         webSocketConnectHeaders: {
           'Authorization': 'Bearer $jwtToken',
         },
-        heartbeat: const StompFrame.heartbeat(),
         beforeConnect: () async {
           print("🔄 Before connect: Preparing STOMP handshake...");
         },

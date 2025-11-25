@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.syncd.syncd_backend.SyncdBackendApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.126 s -- in com.syncd.syncd_backend.SyncdBackendApplicationTests

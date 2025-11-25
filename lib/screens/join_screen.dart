@@ -3,6 +3,7 @@ import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
 import '../theme.dart';
 import 'guest_lobby_screen.dart'; // Import the new screen
+import 'controller_screen.dart';
 
 class JoinScreen extends StatelessWidget {
   const JoinScreen({super.key});
@@ -51,17 +52,7 @@ class JoinScreen extends StatelessWidget {
                       return;
                     }
 
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Connecting to ${controller.text}...")));
-
-                    // Simulate Network Delay then Navigate
-                    Future.delayed(const Duration(seconds: 1), () {
-                      if (context.mounted) {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => GuestLobbyScreen(lobbyCode: controller.text))
-                        );
-                      }
-                    });
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ControllerScreen(gameCode: controller.text)));
                   },
                   color: colors.success, // Green for Go
                   isButton: true,

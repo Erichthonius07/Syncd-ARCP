@@ -2,20 +2,23 @@ package com.syncd.syncd_backend.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
 @Component
 public class JwtTokenProvider {
 
-    // 1. Generate a secure secret key (keep this secret!)
-    private final SecretKey jwtSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    // 1. Use a fixed secret key (in production, this should come from environment variables)
+    // This is a Base64-encoded 64-byte (512-bit) key suitable for HS512
+    private static final String FIXED_SECRET = "TXlTdXBlclNlY3JldEtleUZvckpXVFRva2VuR2VuZXJhdGlvbkFuZElzVmVyeUxvbmdUb0Jlc2F0aXNmaWVk";
+    
+    private final SecretKey jwtSecretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(FIXED_SECRET));
     private final long jwtExpirationInMs = 86400000; // 24 hours
 
     // 2. Generate a token for a user
@@ -27,7 +30,7 @@ public class JwtTokenProvider {
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
                 .expiration(expiryDate)
-                .signWith(jwtSecretKey, SignatureAlgorithm.HS512)
+                .signWith(jwtSecretKey)
                 .compact();
     }
 

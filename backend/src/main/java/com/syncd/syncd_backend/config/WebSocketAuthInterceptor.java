@@ -12,9 +12,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketAuthInterceptor.class);
 
     @Autowired
     private JwtTokenProvider tokenProvider;
@@ -27,29 +31,42 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             
             // 1. Get the "Authorization" header from the STOMP CONNECT message
             String authHeader = accessor.getFirstNativeHeader("Authorization");
+            logger.info("🔍 WebSocket CONNECT attempt - Authorization header: {}", authHeader != null ? "Present" : "Missing");
             
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String jwt = authHeader.substring(7);
+                try {
+                    String jwt = authHeader.substring(7);
+                    logger.info("🔐 Validating JWT token...");
 
-                // 2. Validate the token
-                String username = tokenProvider.getUsernameFromJWT(jwt);
-                UserDetails userDetails = userService.loadUserByUsername(username);
-
-                if (tokenProvider.validateToken(jwt, userDetails)) {
-                    // 3. Set the authenticated user in the security context
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities());
+                    // 2. Validate the token
+                    String username = tokenProvider.getUsernameFromJWT(jwt);
+                    logger.info("👤 Token belongs to user: {}", username);
                     
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UserDetails userDetails = userService.loadUserByUsername(username);
 
-                    // 4. Associate the user with the WebSocket session
-                    accessor.setUser(authentication);
+                    if (tokenProvider.validateToken(jwt, userDetails)) {
+                        // 3. Set the authenticated user in the security context
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails, null, userDetails.getAuthorities());
+                        
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                        // 4. Associate the user with the WebSocket session
+                        accessor.setUser(authentication);
+                        logger.info("✅ WebSocket authentication successful for user: {}", username);
+                    } else {
+                        logger.warn("❌ Token validation failed for user: {}", username);
+                    }
+                } catch (Exception e) {
+                    logger.error("❌ Error during WebSocket authentication: {}", e.getMessage(), e);
                 }
+            } else {
+                logger.warn("❌ No valid Authorization header found in STOMP CONNECT");
             }
         }
         return message;

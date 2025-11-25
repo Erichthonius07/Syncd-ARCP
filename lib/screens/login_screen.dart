@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // <--- 1. Add this import
+import '../services/socket_service.dart'; // <--- 2. Add this import
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
 import '../theme.dart';
@@ -60,7 +62,21 @@ class LoginScreen extends StatelessWidget {
                 NeoCard(
                   color: AppTheme.hotPink,
                   isButton: true,
-                  onTap: () => Navigator.pushReplacementNamed(context, '/home'),
+                  
+                  // 👇👇👇 THIS IS THE PART YOU CHANGE 👇👇👇
+                  onTap: () {
+                    // 1. Paste your real JWT token from the backend here
+                    // This token was generated from the login endpoint and is valid for 24 hours
+                    final token = "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJuYXZpc3RoYSIsImlhdCI6MTc2NDA0NzUwMSwiZXhwIjoxNzY0MTMzOTAxfQ.sg8mscoaUZFWD1BmTZNyjuqbLcW1jaeuLCMfLa1RadlbUF3R-dRq6Y9nK4hl-02i"; 
+                    
+                    // 2. Connect the WebSocket
+                    Provider.of<SocketService>(context, listen: false).connect(token);
+                    
+                    // 3. Navigate to Home
+                    Navigator.pushReplacementNamed(context, '/home');
+                  },
+                  // 👆👆👆 END OF CHANGES 👆👆👆
+
                   child: const Center(
                     child: Text("PRESS START", style: TextStyle(fontFamily: 'Pixer', fontSize: 24, color: Colors.white)),
                   ),

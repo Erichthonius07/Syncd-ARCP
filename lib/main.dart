@@ -16,6 +16,7 @@ import 'screens/my_games_screen.dart';
 import 'services/friend_service.dart';
 import 'services/chat_service.dart';
 import 'services/activity_service.dart';
+import 'services/socket_service.dart';
 
 void main() {
   runApp(
@@ -25,6 +26,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => FriendService()),
         ChangeNotifierProvider(create: (_) => ChatService()),
         ChangeNotifierProvider(create: (_) => ActivityService()),
+        ChangeNotifierProvider(create: (_) => SocketService()),
       ],
       child: const SyncApp(),
     ),

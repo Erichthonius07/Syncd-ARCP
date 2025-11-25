@@ -57,11 +57,11 @@ class _ControllerScreenState extends State<ControllerScreen> {
                       children: [
                         _btn(socket, "UP", Icons.arrow_upward, size),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _btn(socket, "LEFT", Icons.arrow_back, size),
-                            SizedBox(width: size), // Middle spacer
-                            _btn(socket, "RIGHT", Icons.arrow_forward, size),
+                            Expanded(child: Center(child: _btn(socket, "LEFT", Icons.arrow_back, size))),
+                            Expanded(child: Container()),
+                            Expanded(child: Center(child: _btn(socket, "RIGHT", Icons.arrow_forward, size))),
                           ],
                         ),
                         _btn(socket, "DOWN", Icons.arrow_downward, size),

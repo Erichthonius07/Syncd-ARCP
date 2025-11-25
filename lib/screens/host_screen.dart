@@ -5,27 +5,158 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
-// Removed unused add_friend_dialog import
 import '../services/friend_service.dart';
+import '../services/socket_service.dart';
+import '../services/webrtc_service.dart';
+import '../services/accessibility_service.dart';
 import '../theme.dart';
 
 class HostScreen extends StatefulWidget {
   final List<String>? initialPlayers;
+  final String? gameCode;
 
-  const HostScreen({super.key, this.initialPlayers});
+  const HostScreen({super.key, this.initialPlayers, this.gameCode});
 
   @override
   State<HostScreen> createState() => _HostScreenState();
 }
 
+class GuestStatus {
+  final int playerSlot;
+  final String guestId;
+  bool isConnected;
+  bool isStreaming;
+
+  GuestStatus({
+    required this.playerSlot,
+    required this.guestId,
+    this.isConnected = false,
+    this.isStreaming = false,
+  });
+}
+
 class _HostScreenState extends State<HostScreen> {
   late List<String> players;
-  final String gameCode = "SYNC-882";
+  late String gameCode;
+  late WebRtcService webRtcService;
+  late SocketService socketService;
+  
+  bool isStreamingActive = false;
+  bool isAccessibilityEnabled = false;
+  String connectionStatus = "CONNECTING...";
+  
+  int maxPlayerCount = 2;
+  bool gameStarted = false;
+  
+  final Map<int, GuestStatus> guestStatus = {};
 
   @override
   void initState() {
     super.initState();
     players = widget.initialPlayers != null ? List.from(widget.initialPlayers!) : ["You"];
+    gameCode = widget.gameCode ?? "SYNC-882";
+    
+    socketService = Provider.of<SocketService>(context, listen: false);
+    
+    webRtcService = WebRtcService(
+      getGameCode: () => gameCode,
+      getUsername: () => "host",
+      onSdpSignal: (peerId, sdp) => socketService.sendSdpSignal(peerId, sdp),
+      onIceCandidate: (peerId, candidate) => socketService.sendIceCandidate(peerId, candidate),
+      onDataChannel: (peerId, channel) {
+        print('📡 Data channel opened from $peerId');
+        _updateGuestStatus(peerId, connected: true);
+      },
+      onRemoteStream: (peerId, stream) {
+        print('📹 Remote stream received from $peerId');
+        _updateGuestStatus(peerId, streaming: true);
+      },
+      onDataMessage: _handleDataMessage,
+    );
+    
+    socketService.onSdpSignal = (peerId, sdp) {
+      webRtcService.handleRemoteSdpForPeer(peerId, sdp);
+    };
+    
+    socketService.onIceCandidate = (peerId, candidate) {
+      webRtcService.addIceCandidateForPeer(peerId, candidate, null);
+    };
+    
+    _initializeStreaming();
+    _checkAccessibilityPermission();
+  }
+  
+  void _initializeGuestSlots(int playerCount) {
+    guestStatus.clear();
+    int guestCount = playerCount - 1;
+    
+    for (int i = 1; i <= guestCount; i++) {
+      guestStatus[i] = GuestStatus(
+        playerSlot: i,
+        guestId: 'guest_$i',
+      );
+    }
+  }
+  
+  void _startGame(int playerCount) {
+    setState(() {
+      maxPlayerCount = playerCount;
+      gameStarted = true;
+    });
+    _initializeGuestSlots(playerCount);
+  }
+  
+  void _updateGuestStatus(String peerId, {bool? connected, bool? streaming}) {
+    final slotNum = int.tryParse(peerId.split('_').last) ?? 0;
+    if (slotNum > 0 && slotNum < maxPlayerCount && guestStatus.containsKey(slotNum)) {
+      setState(() {
+        if (connected != null) guestStatus[slotNum]!.isConnected = connected;
+        if (streaming != null) guestStatus[slotNum]!.isStreaming = streaming;
+      });
+    }
+  }
+
+  Future<void> _initializeStreaming() async {
+    try {
+      socketService.setGameCode(gameCode);
+      await webRtcService.initialize();
+      setState(() {
+        connectionStatus = "INITIALIZED";
+      });
+    } catch (e) {
+      print('Error initializing streaming: $e');
+      setState(() {
+        connectionStatus = "ERROR";
+      });
+    }
+  }
+
+  Future<void> _checkAccessibilityPermission() async {
+    final enabled = await AccessibilityService.isAccessibilityServiceEnabled();
+    setState(() {
+      isAccessibilityEnabled = enabled;
+    });
+  }
+
+  void _handleDataMessage(String peerId, Map<String, dynamic> message) async {
+    final type = message['type'];
+    
+    if (type == 'TAP') {
+      final x = (message['x'] as num).toDouble();
+      final y = (message['y'] as num).toDouble();
+      final playerSlot = message['playerSlot'] as int?;
+      
+      print('📍 Tap from $peerId: x=$x, y=$y, player=$playerSlot');
+      
+      try {
+        await AccessibilityService.performTap(x, y);
+      } catch (e) {
+        print('❌ Error injecting tap: $e');
+      }
+    } else if (type == 'INPUT') {
+      final inputData = message['inputData'] as String?;
+      print('🎮 Input from $peerId: $inputData');
+    }
   }
 
   void _kickPlayer(String name) {
@@ -54,14 +185,115 @@ class _HostScreenState extends State<HostScreen> {
     }
   }
 
+  Future<void> _startStreaming() async {
+    if (!isAccessibilityEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Enable Accessibility Service to stream"))
+      );
+      return;
+    }
+
+    try {
+      await AccessibilityService.startScreenCapture();
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      for (final slot in guestStatus.keys) {
+        final peerId = guestStatus[slot]!.guestId;
+        print('🎬 Creating offer for guest slot $slot (peerId: $peerId)');
+        await webRtcService.createOfferForPeer(peerId, withVideo: true, withAudio: false);
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      
+      setState(() {
+        isStreamingActive = true;
+        connectionStatus = "STREAMING";
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Stream Started for all guests!"))
+      );
+    } catch (e) {
+      print('Error starting stream: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e"))
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    webRtcService.dispose();
+    socketService.disconnect();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.c(context);
-    // Removed unused 'isDark' variable
     final friendService = Provider.of<FriendService>(context);
-
     final iconColor = Theme.of(context).iconTheme.color;
     final textColor = Theme.of(context).textTheme.bodyLarge!.color;
+
+    if (!gameStarted) {
+      return Scaffold(
+        body: DotGridBackground(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(Icons.arrow_back, size: 32, color: iconColor),
+                  ),
+                  const Spacer(),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("SELECT PLAYERS", style: Theme.of(context).textTheme.displayLarge),
+                        const SizedBox(height: 32),
+                        GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          mainAxisSpacing: 20,
+                          crossAxisSpacing: 20,
+                          childAspectRatio: 1.2,
+                          children: [2, 3, 4].map((count) {
+                            return GestureDetector(
+                              onTap: () => _startGame(count),
+                              child: NeoCard(
+                                color: colors.success,
+                                isButton: true,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "$count",
+                                      style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.black),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      count == 2 ? "PLAYERS" : "PLAYERS",
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       body: DotGridBackground(
@@ -125,23 +357,25 @@ class _HostScreenState extends State<HostScreen> {
                 ),
 
                 const SizedBox(height: 40),
-                Text("SQUAD (${players.length}/4)", style: Theme.of(context).textTheme.displaySmall),
+                Text("SQUAD (${players.length}/$maxPlayerCount)", style: Theme.of(context).textTheme.displaySmall),
                 const SizedBox(height: 16),
 
                 // 3. PLAYER GRID
                 Expanded(
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: maxPlayerCount <= 2 ? 1 : 2,
                         mainAxisSpacing: 16,
                         crossAxisSpacing: 16,
                         childAspectRatio: 1.3
                     ),
-                    itemCount: 4,
+                    itemCount: maxPlayerCount,
                     itemBuilder: (context, index) {
+                      final slotNum = index + 1;
                       final isOccupied = index < players.length;
                       final name = isOccupied ? players[index] : "WAITING...";
                       final isMe = name == "You";
+                      final status = guestStatus[slotNum];
 
                       if (!isOccupied) {
                         return GestureDetector(
@@ -184,6 +418,27 @@ class _HostScreenState extends State<HostScreen> {
                                     name,
                                     style: TextStyle(fontFamily: 'Pixer', fontSize: 14, color: textColor)
                                 ),
+                                const SizedBox(height: 4),
+                                if (status != null)
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        status.isConnected ? Icons.cloud_done : Icons.cloud_off,
+                                        size: 12,
+                                        color: status.isConnected ? AppTheme.matrixGreen : Colors.grey,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        status.isStreaming ? "LIVE" : "IDLE",
+                                        style: TextStyle(
+                                          fontFamily: 'Pixer',
+                                          fontSize: 10,
+                                          color: status.isStreaming ? AppTheme.matrixGreen : Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                               ],
                             ),
                           ),
@@ -211,17 +466,42 @@ class _HostScreenState extends State<HostScreen> {
                   ),
                 ),
 
-                NeoCard(
-                  color: colors.actionHost,
-                  isButton: true,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Connecting to Game Server..."))
-                    );
-                  },
-                  child: Center(
-                    child: Text("START GAME", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Colors.black)),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: NeoCard(
+                        color: colors.actionHost,
+                        isButton: true,
+                        onTap: isAccessibilityEnabled ? _startStreaming : null,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isStreamingActive ? "STREAMING" : "START STREAM",
+                                style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Colors.black),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                connectionStatus,
+                                style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Colors.black54),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    NeoCard(
+                      color: isAccessibilityEnabled ? AppTheme.matrixGreen : AppTheme.hotPink,
+                      isButton: true,
+                      onTap: _checkAccessibilityPermission,
+                      child: Icon(
+                        isAccessibilityEnabled ? Icons.check : Icons.warning,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

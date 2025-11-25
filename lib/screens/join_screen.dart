@@ -2,15 +2,33 @@ import 'package:flutter/material.dart';
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
 import '../theme.dart';
-import 'guest_lobby_screen.dart'; // Import the new screen
-import 'controller_screen.dart';
+import 'guest_lobby_screen.dart';
 
-class JoinScreen extends StatelessWidget {
+class JoinScreen extends StatefulWidget {
   const JoinScreen({super.key});
 
   @override
+  State<JoinScreen> createState() => _JoinScreenState();
+}
+
+class _JoinScreenState extends State<JoinScreen> {
+  late TextEditingController codeController;
+  int selectedSlot = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    codeController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    codeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final TextEditingController controller = TextEditingController();
     final colors = AppTheme.c(context);
 
     return Scaffold(
@@ -29,12 +47,12 @@ class JoinScreen extends StatelessWidget {
                 Text("ENTER CODE", style: Theme.of(context).textTheme.displayLarge),
                 Text("Ask your host for the ID", style: Theme.of(context).textTheme.bodyMedium),
 
-                const Spacer(),
+                const SizedBox(height: 24),
 
                 NeoCard(
                   color: Theme.of(context).cardColor,
                   child: TextField(
-                    controller: controller,
+                    controller: codeController,
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontFamily: 'Pixer', fontSize: 40),
                     decoration: const InputDecoration(border: InputBorder.none, hintText: "____"),
@@ -42,19 +60,66 @@ class JoinScreen extends StatelessWidget {
                   ),
                 ),
 
+                const SizedBox(height: 24),
+                Text("SELECT PLAYER SLOT", style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 12),
+
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 2.5,
+                  children: List.generate(4, (index) {
+                    final slot = index + 1;
+                    final isSelected = selectedSlot == slot;
+                    return GestureDetector(
+                      onTap: () => setState(() => selectedSlot = slot),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected ? colors.success : colors.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            width: 2,
+                            color: isSelected ? colors.success : colors.outline,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "P$slot",
+                            style: TextStyle(
+                              fontFamily: 'Pixer',
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected ? Colors.black : Theme.of(context).textTheme.bodyLarge!.color,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+
                 const Spacer(),
 
-                // CONNECT BUTTON FIX
                 NeoCard(
                   onTap: () {
-                    if (controller.text.isEmpty) {
+                    if (codeController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(backgroundColor: Colors.red, content: Text("Enter a code!")));
                       return;
                     }
 
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ControllerScreen(gameCode: controller.text)));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GuestLobbyScreen(
+                          lobbyCode: codeController.text,
+                          playerSlot: selectedSlot,
+                        ),
+                      ),
+                    );
                   },
-                  color: colors.success, // Green for Go
+                  color: colors.success,
                   isButton: true,
                   child: const Center(
                     child: Text("CONNECT ->", style: TextStyle(fontFamily: 'Pixer', fontSize: 24, color: Colors.black)),

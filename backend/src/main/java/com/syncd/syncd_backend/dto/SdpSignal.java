@@ -8,7 +8,8 @@ package com.syncd.syncd_backend.dto;
 public class SdpSignal {
 
     private String gameCode;  // The lobby
-    private String toUser;    // The specific user this signal is for
+    private String peerId;    // The peer identifier (guest_1, guest_2, etc. or host)
+    private String toUser;    // Legacy: The specific user this signal is for
     private String fromUser;  // The user who sent this signal
     private String sdp;       // The actual SDP payload (the offer/answer)
 
@@ -19,6 +20,14 @@ public class SdpSignal {
 
     public void setGameCode(String gameCode) {
         this.gameCode = gameCode;
+    }
+
+    public String getPeerId() {
+        return peerId;
+    }
+
+    public void setPeerId(String peerId) {
+        this.peerId = peerId;
     }
 
     public String getToUser() {

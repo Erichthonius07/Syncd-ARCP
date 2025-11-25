@@ -4,17 +4,24 @@ import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
+typedef SdpSignalCallback = void Function(String peerId, String sdp);
+typedef IceCandidateCallback = void Function(String peerId, String candidate);
+
 class SocketService with ChangeNotifier {
   StompClient? _client;
   bool isConnected = false;
   String? currentGameCode;
-  String? _jwtToken; // Store JWT token for reconnection
+  String? currentUsername;
+  String? _jwtToken;
 
-  // WebSocket URL pointing to the Spring WebSocket endpoint
+  SdpSignalCallback? onSdpSignal;
+  IceCandidateCallback? onIceCandidate;
+
   final String _wsUrl = 'ws://10.0.2.2:8080/ws-sync/websocket';
 
-  void connect(String jwtToken) {
-    _jwtToken = jwtToken; // Store token for reconnection
+  void connect(String jwtToken, {String? username}) {
+    _jwtToken = jwtToken;
+    currentUsername = username;
     
     if (_client != null && _client!.connected) {
       print("✅ Already connected to WebSocket");
@@ -29,6 +36,7 @@ class SocketService with ChangeNotifier {
         onConnect: (StompFrame frame) {
           isConnected = true;
           print("✅ SOCKET CONNECTED - STOMP negotiation complete");
+          _subscribeToGameChannels();
           notifyListeners();
         },
         onDisconnect: (frame) {
@@ -62,11 +70,95 @@ class SocketService with ChangeNotifier {
     _client?.activate();
   }
 
-  // Auto-connect using stored token (for when navigating to ControllerScreen)
   void connectIfNeeded() {
     if (_jwtToken != null && (_client == null || !_client!.connected)) {
       connect(_jwtToken!);
     }
+  }
+
+  void setGameCode(String gameCode) {
+    currentGameCode = gameCode;
+    _subscribeToGameChannels();
+  }
+
+  void _subscribeToGameChannels() {
+    if (!isConnected || currentGameCode == null) return;
+
+    _client?.subscribe(
+      destination: '/user/queue/webrtc/sdp',
+      callback: (frame) {
+        try {
+          final data = jsonDecode(frame.body ?? '{}');
+          final peerId = data['peerId'] as String? ?? data['fromUser'] as String?;
+          final sdp = data['sdp'] as String?;
+          if (peerId != null && sdp != null) {
+            onSdpSignal?.call(peerId, sdp);
+          }
+        } catch (e) {
+          print('Error parsing SDP signal: $e');
+        }
+      },
+    );
+
+    _client?.subscribe(
+      destination: '/user/queue/webrtc/ice',
+      callback: (frame) {
+        try {
+          final data = jsonDecode(frame.body ?? '{}');
+          final peerId = data['peerId'] as String? ?? data['fromUser'] as String?;
+          final candidate = data['candidate'] as String?;
+          if (peerId != null && candidate != null) {
+            onIceCandidate?.call(peerId, candidate);
+          }
+        } catch (e) {
+          print('Error parsing ICE candidate: $e');
+        }
+      },
+    );
+
+    _client?.subscribe(
+      destination: '/topic/game/$currentGameCode',
+      callback: (frame) {
+        try {
+          final data = jsonDecode(frame.body ?? '{}');
+          print('📨 Game event received: $data');
+        } catch (e) {
+          print('Error parsing game event: $e');
+        }
+      },
+    );
+  }
+
+  void sendSdpSignal(String peerId, String sdp) {
+    if (!isConnected || currentGameCode == null) return;
+
+    final payload = {
+      "gameCode": currentGameCode,
+      "peerId": peerId,
+      "sdp": sdp,
+    };
+
+    _client?.send(
+      destination: '/app/game/signal/sdp',
+      body: jsonEncode(payload),
+    );
+    print("📤 SDP Signal Sent to $peerId");
+  }
+
+  void sendIceCandidate(String peerId, String candidate) {
+    if (!isConnected || currentGameCode == null) return;
+
+    final payload = {
+      "gameCode": currentGameCode,
+      "peerId": peerId,
+      "candidate": candidate,
+    };
+
+    _client?.send(
+      destination: '/app/game/signal/ice',
+      body: jsonEncode(payload),
+    );
+    print("📤 ICE Candidate Sent to $peerId");
   }
 
   void sendInput(String input) {
@@ -74,7 +166,7 @@ class SocketService with ChangeNotifier {
 
     final payload = {
       "gameCode": currentGameCode,
-      "playerSlot": 1, 
+      "playerSlot": 1,
       "inputData": input
     };
 
@@ -83,5 +175,11 @@ class SocketService with ChangeNotifier {
       body: jsonEncode(payload),
     );
     print("📤 Input Sent: $input");
+  }
+
+  void disconnect() {
+    _client?.deactivate();
+    isConnected = false;
+    notifyListeners();
   }
 }

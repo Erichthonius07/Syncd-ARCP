@@ -9,12 +9,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^6.1.0  # NEW: For modern typography
-  flutter_animate: ^4.2.0 # NEW: For spring physics
+  google_fonts: ^6.1.0
+  flutter_animate: ^4.2.0
   cupertino_icons: ^1.0.6
   provider: ^6.1.2
   http: ^1.5.0
   stomp_dart_client: ^1.0.0
+  flutter_webrtc: ^1.0.0
+  permission_handler: ^11.1.0
+  screen_brightness: ^0.2.2
 
 dev_dependencies:
   flutter_test:

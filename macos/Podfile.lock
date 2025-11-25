@@ -1,21 +1,40 @@
 PODS:
+  - flutter_webrtc (1.2.0):
+    - FlutterMacOS
+    - WebRTC-SDK (= 137.7151.04)
   - FlutterMacOS (1.0.0)
   - objective_c (0.0.1):
     - FlutterMacOS
+  - screen_brightness_macos (0.1.0):
+    - FlutterMacOS
+  - WebRTC-SDK (137.7151.04)
 
 DEPENDENCIES:
+  - flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - objective_c (from `Flutter/ephemeral/.symlinks/plugins/objective_c/macos`)
+  - screen_brightness_macos (from `Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos`)
+
+SPEC REPOS:
+  trunk:
+    - WebRTC-SDK
 
 EXTERNAL SOURCES:
+  flutter_webrtc:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_webrtc/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   objective_c:
     :path: Flutter/ephemeral/.symlinks/plugins/objective_c/macos
+  screen_brightness_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos
 
 SPEC CHECKSUMS:
+  flutter_webrtc: 718eae22a371cd94e5d56aa4f301443ebc5bb737
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   objective_c: ec13431e45ba099cb734eb2829a5c1cd37986cba
+  screen_brightness_macos: 2a3ee243f8051c340381e8e51bcedced8360f421
+  WebRTC-SDK: 40d4f5ba05cadff14e4db5614aec402a633f007e
 
 PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
 

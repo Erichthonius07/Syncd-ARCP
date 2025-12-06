@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
-import '../widgets/cyber_loader.dart';
+// Assuming CyberLoader is a custom widget you have, if not, use CircularProgressIndicator
+// import '../widgets/cyber_loader.dart';
 import '../theme.dart';
-import '../services/auth_service.dart';
+import '../services/socket_service.dart'; // Import SocketService
+import '../providers/auth_provider.dart'; // Use AuthProvider instead of direct AuthService
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,8 +19,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _isLoading = false;
+  // Using AuthProvider's loading state is better, but local state works for the toggle animation
   bool _isRegistering = false;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _handleAuth() async {
     final username = _usernameController.text.trim();
@@ -26,51 +35,71 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(backgroundColor: Colors.red, content: Text("Please fill all fields")),
+        const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text("Please fill all fields")
+        ),
       );
       return;
     }
 
-    setState(() => _isLoading = true);
+    // Use the Provider to handle auth state
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    final authService = Provider.of<AuthService>(context, listen: false);
-    String? error;
-
-    // Wait for animation
-    await Future.delayed(const Duration(milliseconds: 1500));
+    String? error; // Null means success
 
     if (_isRegistering) {
-      error = await authService.register(username, password);
-      if (error == null) {
+      // Register Logic
+      final result = await authProvider.register(username, "placeholder@email.com", password);
+      // Note: Your UI doesn't have an email field yet, passing placeholder or you can add the field.
+      // Ideally, update UI to ask for email if registering.
+
+      if (result == "Success") {
         setState(() {
-          _isRegistering = false;
-          _isLoading = false;
+          _isRegistering = false; // Switch to login mode after success
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(backgroundColor: AppTheme.matrixGreen, content: Text("Account Created! Please Login.")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                backgroundColor: Colors.green,
+                content: Text("Account Created! Please Login.")
+            ),
+          );
+        }
         return;
+      } else {
+        error = result;
       }
     } else {
-      error = await authService.login(username, password);
+      // Login Logic
+      final success = await authProvider.login(username, password);
+      if (!success) {
+        error = "Invalid credentials or connection failed";
+      }
     }
 
-    if (error == null) {
-      if (mounted) {
+    if (mounted) {
+      if (error == null) {
+        // --- LOGIC FROM 1st BLOCK: Connect WebSocket ---
+        final token = authProvider.token;
+        if (token != null) {
+          Provider.of<SocketService>(context, listen: false).connect(token);
+        }
+
         Navigator.pushReplacementNamed(context, '/home');
-      }
-    } else {
-      if (mounted) {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text(error)),
+          SnackBar(backgroundColor: Colors.red, content: Text(error!)),
         );
-        setState(() => _isLoading = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen to provider for loading state
+    final isLoading = context.watch<AuthProvider>().isLoading;
+
     final colors = AppTheme.c(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -78,18 +107,13 @@ class _LoginScreenState extends State<LoginScreen> {
     final actionColor = colors.actionLibrary;
 
     return Scaffold(
-      // FIX: Prevents the background from resizing weirdly
       resizeToAvoidBottomInset: true,
       body: DotGridBackground(
         child: SafeArea(
-          // FIX: LayoutBuilder detects available space
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  // FIX: Forces the content to be at least as tall as the screen
-                  // enabling Spacers to work when keyboard is closed,
-                  // and scrolling to work when keyboard is open.
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight,
                   ),
@@ -152,11 +176,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Login Button
                           NeoCard(
                             color: _isRegistering ? AppTheme.electricBlue : AppTheme.hotPink,
-                            isButton: true,
-                            onTap: _isLoading ? null : _handleAuth,
+                            isButton: !isLoading,
+                            onTap: isLoading ? null : _handleAuth,
                             child: Center(
-                              child: _isLoading
-                                  ? CyberLoader(size: 24, color: Colors.black)
+                              child: isLoading
+                                  ? const CircularProgressIndicator(color: Colors.black)
                                   : Text(
                                   _isRegistering ? "REGISTER" : "PRESS START",
                                   style: const TextStyle(fontFamily: 'Pixer', fontSize: 24, color: Colors.black)
@@ -195,7 +219,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
 
-                          // Push content up when keyboard shows
                           const Spacer(),
                         ],
                       ),

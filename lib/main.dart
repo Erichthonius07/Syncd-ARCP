@@ -13,12 +13,12 @@ import 'screens/activity_screen.dart';
 import 'screens/my_games_screen.dart';
 import 'screens/controller_screen.dart';
 
-// Services
+// Services & Providers
 import 'services/friend_service.dart';
 import 'services/chat_service.dart';
 import 'services/activity_service.dart';
-import 'services/auth_service.dart';
-import 'services/socket_service.dart'; // This import is now used below
+import 'services/socket_service.dart';
+import 'providers/auth_provider.dart';
 
 void main() {
   runApp(
@@ -28,12 +28,17 @@ void main() {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
 
         // 2. Data Services
-        ChangeNotifierProvider(create: (_) => AuthService()), // Auth
+        // Note: AuthService is used internally by AuthProvider, so we don't need to provide it directly here
+        // unless other parts of the app need direct access to the raw service.
+        // If you want to access AuthService directly, uncomment the next line:
+        // Provider(create: (_) => AuthService()),
+
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => FriendService()),
         ChangeNotifierProvider(create: (_) => ChatService()),
         ChangeNotifierProvider(create: (_) => ActivityService()),
 
-        // 3. Backend Services (This fixes the "Unused Import" AND the "Red Screen")
+        // 3. Backend Services
         ChangeNotifierProvider(create: (_) => SocketService()),
       ],
       child: const SyncApp(),

@@ -9,21 +9,33 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # --- UI & Design ---
   google_fonts: ^6.1.0
   flutter_animate: ^4.2.0
   cupertino_icons: ^1.0.6
+
+  # --- State Management ---
   provider: ^6.1.2
-  http: ^1.5.0
-  stomp_dart_client: ^3.0.1
-  flutter_webrtc: ^1.0.0
-  permission_handler: ^12.0.1
-  screen_brightness: ^2.1.7
+
+  # --- Networking & Auth ---
+  http: ^1.2.0  # Stable version for compatibility
+  stomp_dart_client: ^1.0.0 # Keeping 1.0.0 as used in your SocketService code
+  shared_preferences: ^2.2.0
+
+  # --- Device Features ---
+  installed_apps: ^1.0.0 # For Game Library Scanning (Fixed namespace issue)
+  permission_handler: ^11.3.0 # For requesting camera/mic permissions
+  screen_brightness: ^2.0.0 # For keeping screen on during gaming
+
+  # --- Video / WebRTC ---
+  flutter_webrtc: ^0.10.8 # Essential for screen mirroring
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.0
 
 flutter:
@@ -43,8 +55,5 @@ flutter_launcher_icons:
   ios: false
   image_path: "assets/icon_padded.png"
 
-# ✅ CORRECTED Splash Screen Configuration
 flutter_native_splash:
-  # This color is the only parameter we need. It will create a solid color
-  # background that perfectly matches your app's theme.
   color: "#1B1717"

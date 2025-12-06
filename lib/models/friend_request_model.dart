@@ -1,5 +1,19 @@
-class FriendRequest {
-  final String name;
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
-  FriendRequest({required this.name});
+class FriendRequestModel {
+  final String name;
+  final String avatar;
+
+  FriendRequestModel({
+    required this.name,
+    required this.avatar,
+  });
+
+  factory FriendRequestModel.fromJson(Map<String, dynamic> json) {
+    return FriendRequestModel(
+      name: json['username'] ?? 'Unknown User',
+      avatar: json['avatarIcon'] ?? "👾",
+    );
+  }
 }

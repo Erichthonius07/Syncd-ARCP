@@ -40,14 +40,14 @@ class _HostScreenState extends State<HostScreen> {
   late String gameCode;
   late WebRtcService webRtcService;
   late SocketService socketService;
-  
+
   bool isStreamingActive = false;
   bool isAccessibilityEnabled = false;
   String connectionStatus = "CONNECTING...";
-  
+
   int maxPlayerCount = 2;
   bool gameStarted = false;
-  
+
   final Map<int, GuestStatus> guestStatus = {};
 
   @override
@@ -55,9 +55,9 @@ class _HostScreenState extends State<HostScreen> {
     super.initState();
     players = widget.initialPlayers != null ? List.from(widget.initialPlayers!) : ["You"];
     gameCode = widget.gameCode ?? "SYNC-882";
-    
+
     socketService = Provider.of<SocketService>(context, listen: false);
-    
+
     webRtcService = WebRtcService(
       getGameCode: () => gameCode,
       getUsername: () => "host",
@@ -73,23 +73,29 @@ class _HostScreenState extends State<HostScreen> {
       },
       onDataMessage: _handleDataMessage,
     );
-    
+
     socketService.onSdpSignal = (peerId, sdp) {
       webRtcService.handleRemoteSdpForPeer(peerId, sdp);
     };
-    
+
     socketService.onIceCandidate = (peerId, candidate) {
       webRtcService.addIceCandidateForPeer(peerId, candidate, null);
     };
-    
+
     _initializeStreaming();
     _checkAccessibilityPermission();
+
+    // If players were passed initially (e.g. from Squads), start game immediately
+    if (widget.initialPlayers != null) {
+      _startGame(4); // Default to 4 for squads
+    }
   }
-  
+
   void _initializeGuestSlots(int playerCount) {
     guestStatus.clear();
+    // Guests are player 2, 3, 4 etc.
     int guestCount = playerCount - 1;
-    
+
     for (int i = 1; i <= guestCount; i++) {
       guestStatus[i] = GuestStatus(
         playerSlot: i,
@@ -97,7 +103,7 @@ class _HostScreenState extends State<HostScreen> {
       );
     }
   }
-  
+
   void _startGame(int playerCount) {
     setState(() {
       maxPlayerCount = playerCount;
@@ -105,7 +111,7 @@ class _HostScreenState extends State<HostScreen> {
     });
     _initializeGuestSlots(playerCount);
   }
-  
+
   void _updateGuestStatus(String peerId, {bool? connected, bool? streaming}) {
     final slotNum = int.tryParse(peerId.split('_').last) ?? 0;
     if (slotNum > 0 && slotNum < maxPlayerCount && guestStatus.containsKey(slotNum)) {
@@ -140,14 +146,14 @@ class _HostScreenState extends State<HostScreen> {
 
   void _handleDataMessage(String peerId, Map<String, dynamic> message) async {
     final type = message['type'];
-    
+
     if (type == 'TAP') {
       final x = (message['x'] as num).toDouble();
       final y = (message['y'] as num).toDouble();
       final playerSlot = message['playerSlot'] as int?;
-      
+
       print('📍 Tap from $peerId: x=$x, y=$y, player=$playerSlot');
-      
+
       try {
         await AccessibilityService.performTap(x, y);
       } catch (e) {
@@ -169,7 +175,7 @@ class _HostScreenState extends State<HostScreen> {
   }
 
   void _inviteFriend(String name) {
-    if (players.length < 4) {
+    if (players.length < maxPlayerCount) {
       setState(() {
         players.add(name);
       });
@@ -188,7 +194,7 @@ class _HostScreenState extends State<HostScreen> {
   Future<void> _startStreaming() async {
     if (!isAccessibilityEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Enable Accessibility Service to stream"))
+          const SnackBar(content: Text("Enable Accessibility Service to stream"))
       );
       return;
     }
@@ -196,25 +202,25 @@ class _HostScreenState extends State<HostScreen> {
     try {
       await AccessibilityService.startScreenCapture();
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       for (final slot in guestStatus.keys) {
         final peerId = guestStatus[slot]!.guestId;
         print('🎬 Creating offer for guest slot $slot (peerId: $peerId)');
         await webRtcService.createOfferForPeer(peerId, withVideo: true, withAudio: false);
         await Future.delayed(const Duration(milliseconds: 100));
       }
-      
+
       setState(() {
         isStreamingActive = true;
         connectionStatus = "STREAMING";
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Stream Started for all guests!"))
+          const SnackBar(content: Text("Stream Started for all guests!"))
       );
     } catch (e) {
       print('Error starting stream: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"))
+          SnackBar(content: Text("Error: $e"))
       );
     }
   }
@@ -233,6 +239,7 @@ class _HostScreenState extends State<HostScreen> {
     final iconColor = Theme.of(context).iconTheme.color;
     final textColor = Theme.of(context).textTheme.bodyLarge!.color;
 
+    // --- VIEW 1: SELECT PLAYER COUNT ---
     if (!gameStarted) {
       return Scaffold(
         body: DotGridBackground(
@@ -260,25 +267,24 @@ class _HostScreenState extends State<HostScreen> {
                           crossAxisSpacing: 20,
                           childAspectRatio: 1.2,
                           children: [2, 3, 4].map((count) {
-                            return GestureDetector(
-                              onTap: () => _startGame(count),
-                              child: NeoCard(
-                                color: colors.success,
-                                isButton: true,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "$count",
-                                      style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.black),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      count == 2 ? "PLAYERS" : "PLAYERS",
-                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
+                            // FIX: Moved onTap inside NeoCard
+                            return NeoCard(
+                              color: colors.success,
+                              isButton: true,
+                              onTap: () => _startGame(count), // <--- Clickable area fixed
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "$count",
+                                    style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.black),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    count == 2 ? "PLAYERS" : "PLAYERS",
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.black54),
+                                  ),
+                                ],
                               ),
                             );
                           }).toList(),
@@ -295,6 +301,7 @@ class _HostScreenState extends State<HostScreen> {
       );
     }
 
+    // --- VIEW 2: LOBBY ---
     return Scaffold(
       body: DotGridBackground(
         child: SafeArea(
@@ -375,9 +382,11 @@ class _HostScreenState extends State<HostScreen> {
                       final isOccupied = index < players.length;
                       final name = isOccupied ? players[index] : "WAITING...";
                       final isMe = name == "You";
-                      final status = guestStatus[slotNum];
+                      // Only check guest status for slots > 1 (Host is slot 1)
+                      final status = slotNum > 1 ? guestStatus[slotNum] : null;
 
                       if (!isOccupied) {
+                        // --- EMPTY SLOT (INVITE BUTTON) ---
                         return GestureDetector(
                           onTap: () => _showInviteDialog(context, friendService),
                           child: Container(
@@ -399,6 +408,7 @@ class _HostScreenState extends State<HostScreen> {
                         );
                       }
 
+                      // --- FILLED SLOT ---
                       return Stack(
                         children: [
                           Container(
@@ -443,6 +453,7 @@ class _HostScreenState extends State<HostScreen> {
                             ),
                           ),
 
+                          // Kick Button (Red X)
                           if (!isMe)
                             Positioned(
                               top: 8,
@@ -466,6 +477,7 @@ class _HostScreenState extends State<HostScreen> {
                   ),
                 ),
 
+                // 4. START STREAM BUTTON
                 Row(
                   children: [
                     Expanded(
@@ -511,9 +523,9 @@ class _HostScreenState extends State<HostScreen> {
     );
   }
 
+  // ... [_showInviteDialog] remains the same ...
   void _showInviteDialog(BuildContext context, FriendService service) {
     final colors = AppTheme.c(context);
-
     showDialog(
       context: context,
       builder: (ctx) => Dialog(

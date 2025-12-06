@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final friendService = Provider.of<FriendService>(context);
     final hasInvites = friendService.friendRequests.isNotEmpty;
 
-    // Get the Semantic Palette (Handles Light/Dark mode automatically)
+    // Get Semantic Palette (Handles Light/Dark mode automatically)
     final colors = AppTheme.c(context);
 
     // Theme properties for conditional styling
@@ -156,8 +156,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text("HOST\nGAME", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: Colors.white, height: 1.1)),
-                                        const Icon(Icons.play_arrow_rounded, size: 40, color: Colors.white),
+                                        // In Dark mode, this text will turn Pink/Green automatically. In Light mode, we force White for contrast on the solid color.
+                                        Text("HOST\nGAME", style: Theme.of(context).textTheme.displayMedium!.copyWith(color: isDark ? colors.actionHost : Colors.white, height: 1.1)),
+                                        Icon(Icons.play_arrow_rounded, size: 40, color: isDark ? colors.actionHost : Colors.white),
                                       ],
                                     )
                                   ],
@@ -183,9 +184,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(Icons.login, size: 20, color: Colors.black),
+                                      // NeoCard handles color automatically now
+                                      const Icon(Icons.login, size: 20),
                                       const SizedBox(width: 8),
-                                      Text("JOIN", style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.black)),
+                                      Text("JOIN", style: Theme.of(context).textTheme.bodyLarge),
                                     ],
                                   ),
                                 ),
@@ -242,9 +244,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.apps, color: Colors.black),
+                          const Icon(Icons.apps),
                           const SizedBox(width: 12),
-                          Text("LIBRARY", style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Colors.black)),
+                          Text("MY LIBRARY", style: Theme.of(context).textTheme.bodyLarge),
                         ],
                       ),
                     ),
@@ -387,7 +389,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSquadsList(FriendService service, BuildContext context) {
     final colors = AppTheme.c(context);
 
-    // Empty State using Theme Colors
     if (service.squads.isEmpty) {
       return Center(
         child: Column(
@@ -395,9 +396,15 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(Icons.groups_2_outlined, size: 64, color: colors.outline.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
-            Text("NO SQUADS FOUND", style: Theme.of(context).textTheme.displaySmall!.copyWith(color: colors.outline.withValues(alpha: 0.5))),
+            Text(
+                "NO SQUADS FOUND",
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(color: colors.outline.withValues(alpha: 0.5))
+            ),
             const SizedBox(height: 8),
-            Text("Tap + to create a team", style: TextStyle(color: colors.outline.withValues(alpha: 0.5))),
+            Text(
+                "Tap + to create a team",
+                style: TextStyle(color: colors.outline.withValues(alpha: 0.5))
+            ),
           ],
         ),
       );

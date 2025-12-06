@@ -1,185 +1,66 @@
-import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:stomp_dart_client/stomp.dart';
-import 'package:stomp_dart_client/stomp_config.dart';
-import 'package:stomp_dart_client/stomp_frame.dart';
 
+// Define the callbacks needed by other screens
 typedef SdpSignalCallback = void Function(String peerId, String sdp);
 typedef IceCandidateCallback = void Function(String peerId, String candidate);
 
 class SocketService with ChangeNotifier {
-  StompClient? _client;
+  // State
   bool isConnected = false;
   String? currentGameCode;
   String? currentUsername;
-  String? _jwtToken;
 
+  // Callbacks (Used by Guest Lobby & Host Screen)
   SdpSignalCallback? onSdpSignal;
   IceCandidateCallback? onIceCandidate;
 
-  final String _wsUrl = 'ws://10.0.2.2:8080/ws-sync/websocket';
+  // --- MOCK CONNECTION LOGIC ---
+  // Instead of connecting to a real server, we just pretend it worked.
 
   void connect(String jwtToken, {String? username}) {
-    _jwtToken = jwtToken;
-    currentUsername = username;
-    
-    if (_client != null && _client!.connected) {
-      print("✅ Already connected to WebSocket");
-      return;
-    }
+    if (isConnected) return;
 
-    print("🔗 Attempting WebSocket connection to: $_wsUrl");
+    print("🔌 MOCK SOCKET: Connecting...");
 
-    _client = StompClient(
-      config: StompConfig(
-        url: _wsUrl,
-        onConnect: (StompFrame frame) {
-          isConnected = true;
-          print("✅ SOCKET CONNECTED - STOMP negotiation complete");
-          _subscribeToGameChannels();
-          notifyListeners();
-        },
-        onDisconnect: (frame) {
-          isConnected = false;
-          print("❌ SOCKET DISCONNECTED");
-          notifyListeners();
-        },
-        onWebSocketError: (dynamic error) {
-          isConnected = false;
-          print("❌ WS Error: $error");
-          notifyListeners();
-        },
-        onStompError: (StompFrame frame) {
-          print("❌ STOMP Error: ${frame.body}");
-          isConnected = false;
-          notifyListeners();
-        },
-        stompConnectHeaders: {
-          'Authorization': 'Bearer $jwtToken',
-          'login': 'guest',
-          'passcode': 'guest',
-        },
-        webSocketConnectHeaders: {
-          'Authorization': 'Bearer $jwtToken',
-        },
-        beforeConnect: () async {
-          print("🔄 Before connect: Preparing STOMP handshake...");
-        },
-      ),
-    );
-    _client?.activate();
+    // Simulate network delay
+    Future.delayed(const Duration(seconds: 1), () {
+      isConnected = true;
+      currentUsername = username ?? "User";
+      print("✅ MOCK SOCKET: Connected!");
+      notifyListeners();
+    });
   }
 
   void connectIfNeeded() {
-    if (_jwtToken != null && (_client == null || !_client!.connected)) {
-      connect(_jwtToken!);
+    if (!isConnected) {
+      connect("mock_token_123");
     }
   }
 
   void setGameCode(String gameCode) {
     currentGameCode = gameCode;
-    _subscribeToGameChannels();
+    print("🎮 MOCK SOCKET: Joined Lobby $gameCode");
   }
 
-  void _subscribeToGameChannels() {
-    if (!isConnected || currentGameCode == null) return;
+  // --- MOCK SENDING METHODS ---
+  // These prevent the app from crashing when you tap buttons.
 
-    _client?.subscribe(
-      destination: '/user/queue/webrtc/sdp',
-      callback: (frame) {
-        try {
-          final data = jsonDecode(frame.body ?? '{}');
-          final peerId = data['peerId'] as String? ?? data['fromUser'] as String?;
-          final sdp = data['sdp'] as String?;
-          if (peerId != null && sdp != null) {
-            onSdpSignal?.call(peerId, sdp);
-          }
-        } catch (e) {
-          print('Error parsing SDP signal: $e');
-        }
-      },
-    );
-
-    _client?.subscribe(
-      destination: '/user/queue/webrtc/ice',
-      callback: (frame) {
-        try {
-          final data = jsonDecode(frame.body ?? '{}');
-          final peerId = data['peerId'] as String? ?? data['fromUser'] as String?;
-          final candidate = data['candidate'] as String?;
-          if (peerId != null && candidate != null) {
-            onIceCandidate?.call(peerId, candidate);
-          }
-        } catch (e) {
-          print('Error parsing ICE candidate: $e');
-        }
-      },
-    );
-
-    _client?.subscribe(
-      destination: '/topic/game/$currentGameCode',
-      callback: (frame) {
-        try {
-          final data = jsonDecode(frame.body ?? '{}');
-          print('📨 Game event received: $data');
-        } catch (e) {
-          print('Error parsing game event: $e');
-        }
-      },
-    );
+  void sendInput(String input) {
+    print("🕹️ MOCK INPUT SENT: $input");
   }
 
   void sendSdpSignal(String peerId, String sdp) {
-    if (!isConnected || currentGameCode == null) return;
-
-    final payload = {
-      "gameCode": currentGameCode,
-      "peerId": peerId,
-      "sdp": sdp,
-    };
-
-    _client?.send(
-      destination: '/app/game/signal/sdp',
-      body: jsonEncode(payload),
-    );
-    print("📤 SDP Signal Sent to $peerId");
+    print("📡 MOCK WEBRTC: SDP Signal sent to $peerId");
   }
 
   void sendIceCandidate(String peerId, String candidate) {
-    if (!isConnected || currentGameCode == null) return;
-
-    final payload = {
-      "gameCode": currentGameCode,
-      "peerId": peerId,
-      "candidate": candidate,
-    };
-
-    _client?.send(
-      destination: '/app/game/signal/ice',
-      body: jsonEncode(payload),
-    );
-    print("📤 ICE Candidate Sent to $peerId");
-  }
-
-  void sendInput(String input) {
-    if (!isConnected || currentGameCode == null) return;
-
-    final payload = {
-      "gameCode": currentGameCode,
-      "playerSlot": 1,
-      "inputData": input
-    };
-
-    _client?.send(
-      destination: '/app/game/input',
-      body: jsonEncode(payload),
-    );
-    print("📤 Input Sent: $input");
+    print("❄️ MOCK WEBRTC: ICE Candidate sent to $peerId");
   }
 
   void disconnect() {
-    _client?.deactivate();
     isConnected = false;
+    print("❌ MOCK SOCKET: Disconnected");
     notifyListeners();
   }
 }

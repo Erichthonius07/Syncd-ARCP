@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// --- 1. THEME PROVIDER ---
 class ThemeProvider extends ChangeNotifier {
-  // FIX: Default to Light Mode instead of System to ensure it matches the UI toggle
+  // LOCKED: Always Light Mode
   ThemeMode themeMode = ThemeMode.light;
+  bool get isDarkMode => false; // Always false
 
-  bool get isDarkMode => themeMode == ThemeMode.dark;
-
-  void toggleTheme(bool isDark) {
-    themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-    notifyListeners();
-  }
+// Removed toggleTheme()
 }
 
-// --- 2. SEMANTIC PALETTE ---
 class SyncPalette {
   final Color background;
   final Color surface;
@@ -44,19 +38,17 @@ class SyncPalette {
 }
 
 class AppTheme {
-  // --- 3. RAW COLORS ---
+  // --- RAW COLORS ---
   static const Color cyberYellow = Color(0xFFFFE600);
-  static const Color electricBlue = Color(0xFF00F0FF);
-  static const Color hotPink = Color(0xFFFF0055);
-  static const Color matrixGreen = Color(0xFF00FF41);
+  static const Color electricBlue = Color(0xFF2DE1FC);
+  static const Color hotPink = Color(0xFFFF006E);
+  static const Color matrixGreen = Color(0xFF06D6A0);
 
-  // --- 4. PALETTE MAPPING ---
-
-  // LIGHT MODE
+  // --- PALETTE (Single Source of Truth) ---
   static const lightPalette = SyncPalette(
-    background: Color(0xFFF4F4F0),
+    background: Color(0xFFF4F4F0), // Cream
     surface: Colors.white,
-    outline: Colors.black,
+    outline: Colors.black, // Hard Ink
     textMain: Colors.black,
     textSub: Colors.grey,
     actionHost: hotPink,
@@ -67,33 +59,16 @@ class AppTheme {
     accentIcon: Colors.black,
   );
 
-  // DARK MODE
-  static const darkPalette = SyncPalette(
-    background: Color(0xFF050505),
-    surface: Color(0xFF121212),
-    outline: Color(0xFF333333),
-    textMain: Colors.white,
-    textSub: Colors.grey,
-    actionHost: hotPink,
-    actionJoin: cyberYellow,
-    actionLibrary: electricBlue,
-    actionInbox: Color(0xFF121212),
-    success: matrixGreen,
-    accentIcon: Colors.white,
-  );
+  // Helper: Always returns Light Palette
+  static SyncPalette c(BuildContext context) => lightPalette;
 
-  // --- 5. HELPER ---
-  static SyncPalette c(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark ? darkPalette : lightPalette;
-  }
+  static ThemeData get lightTheme => _buildTheme(lightPalette);
+  // Dark theme is just Light theme now (Fallback)
+  static ThemeData get darkTheme => _buildTheme(lightPalette);
 
-  // --- 6. FLUTTER THEME DATA ---
-  static ThemeData get lightTheme => _buildTheme(lightPalette, Brightness.light);
-  static ThemeData get darkTheme => _buildTheme(darkPalette, Brightness.dark);
-
-  static ThemeData _buildTheme(SyncPalette palette, Brightness brightness) {
+  static ThemeData _buildTheme(SyncPalette palette) {
     return ThemeData(
-      brightness: brightness,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: palette.background,
       primaryColor: palette.actionHost,
       cardColor: palette.surface,
@@ -106,12 +81,6 @@ class AppTheme {
         bodyLarge: GoogleFonts.spaceGrotesk(fontSize: 18, fontWeight: FontWeight.w700, color: palette.textMain),
         bodyMedium: GoogleFonts.spaceGrotesk(fontSize: 15, fontWeight: FontWeight.w500, color: palette.textMain),
         labelSmall: GoogleFonts.spaceGrotesk(fontSize: 12, fontWeight: FontWeight.bold, color: palette.textMain.withValues(alpha: 0.6)),
-      ),
-      // Input Decoration Theme for Forms
-      inputDecorationTheme: InputDecorationTheme(
-        hintStyle: TextStyle(color: palette.textSub),
-        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: palette.outline)),
-        focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: palette.actionHost, width: 2)),
       ),
     );
   }

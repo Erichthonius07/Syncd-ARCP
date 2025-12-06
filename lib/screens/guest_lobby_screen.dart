@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../widgets/dot_grid_background.dart';
 import '../widgets/neo_card.dart';
+import '../widgets/cyber_loader.dart';
 import '../services/socket_service.dart';
 import '../services/webrtc_service.dart';
 import '../theme.dart';
+import 'controller_screen.dart';
 
 class GuestLobbyScreen extends StatefulWidget {
   final String lobbyCode;
@@ -25,7 +27,7 @@ class GuestLobbyScreen extends StatefulWidget {
 class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
   late WebRtcService webRtcService;
   late SocketService socketService;
-  
+
   bool isConnected = false;
   bool isStreaming = false;
   MediaStream? remoteStream;
@@ -36,9 +38,9 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
     super.initState();
     socketService = Provider.of<SocketService>(context, listen: false);
     videoRenderer = RTCVideoRenderer();
-    
+
     final peerId = "guest_${widget.playerSlot}";
-    
+
     webRtcService = WebRtcService(
       getGameCode: () => widget.lobbyCode,
       getUsername: () => peerId,
@@ -55,7 +57,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
       },
       onDataMessage: null,
     );
-    
+
     socketService.onSdpSignal = (peerId, sdp) {
       if (sdp.contains('offer')) {
         webRtcService.createAnswerForPeer(peerId, sdp);
@@ -63,11 +65,11 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
         webRtcService.handleRemoteSdpForPeer(peerId, sdp);
       }
     };
-    
+
     socketService.onIceCandidate = (peerId, candidate) {
       webRtcService.addIceCandidateForPeer(peerId, candidate, null);
     };
-    
+
     _initializeConnection();
   }
 
@@ -93,7 +95,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
     if (box == null) return;
 
     final tapPosition = details.localPosition;
-    
+
     webRtcService.sendTapCoordinate(
       tapPosition.dx.toInt(),
       tapPosition.dy.toInt(),
@@ -112,6 +114,9 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final colors = AppTheme.c(context);
+
+    // REMOVED unused 'isDark' variable
 
     return Scaffold(
       body: Stack(
@@ -134,9 +139,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                     },
                   );
                 }
-                return Center(
-                  child: CircularProgressIndicator().animate().fadeIn(),
-                );
+                return Center(child: CyberLoader(size: 50, color: colors.actionHost));
               },
             )
           else
@@ -145,16 +148,29 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const CircularProgressIndicator().animate().fadeIn(),
+                    CyberLoader(size: 60, color: colors.success),
                     const SizedBox(height: 24),
                     Text(
                       isConnected ? "Waiting for stream..." : "Connecting...",
                       style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                    ).animate(onPlay: (c) => c.repeat(reverse: true)).fade(duration: 1000.ms),
+
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () => Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => ControllerScreen(gameCode: widget.lobbyCode))
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        child: Text("(Tap to Sim Start)", style: TextStyle(color: colors.textSub, fontSize: 10)),
+                      ),
+                    )
                   ],
                 ),
               ),
             ),
+
           SafeArea(
             child: Column(
               children: [
@@ -170,7 +186,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                           Text(
                             isStreaming ? "LIVE" : "WAITING",
                             style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                              color: isStreaming ? AppTheme.matrixGreen : Colors.grey,
+                              color: isStreaming ? colors.success : Colors.grey,
                             ),
                           ),
                         ],
@@ -178,7 +194,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                       NeoCard(
                         onTap: () => Navigator.pop(context),
                         color: AppTheme.hotPink,
-                        child: const Icon(Icons.logout, color: Colors.white),
+                        child: const Icon(Icons.logout),
                       ),
                     ],
                   ),
@@ -186,6 +202,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
               ],
             ),
           ),
+
           if (isStreaming)
             Positioned.fill(
               top: kToolbarHeight + 32,
@@ -207,12 +224,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                   onTapDown: (details) => _onTouchDown(details, 1),
                   child: Container(
                     color: Colors.black.withValues(alpha: 0.1),
-                    child: const Center(
-                      child: Text(
-                        "P1",
-                        style: TextStyle(color: Colors.white70, fontSize: 20),
-                      ),
-                    ),
+                    child: const Center(child: Text("P1", style: TextStyle(color: Colors.white70, fontSize: 20))),
                   ),
                 ),
               ),
@@ -221,12 +233,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                   onTapDown: (details) => _onTouchDown(details, 3),
                   child: Container(
                     color: Colors.black.withValues(alpha: 0.2),
-                    child: const Center(
-                      child: Text(
-                        "P3",
-                        style: TextStyle(color: Colors.white70, fontSize: 20),
-                      ),
-                    ),
+                    child: const Center(child: Text("P3", style: TextStyle(color: Colors.white70, fontSize: 20))),
                   ),
                 ),
               ),
@@ -241,12 +248,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                   onTapDown: (details) => _onTouchDown(details, 2),
                   child: Container(
                     color: Colors.black.withValues(alpha: 0.15),
-                    child: const Center(
-                      child: Text(
-                        "P2",
-                        style: TextStyle(color: Colors.white70, fontSize: 20),
-                      ),
-                    ),
+                    child: const Center(child: Text("P2", style: TextStyle(color: Colors.white70, fontSize: 20))),
                   ),
                 ),
               ),
@@ -255,12 +257,7 @@ class _GuestLobbyScreenState extends State<GuestLobbyScreen> {
                   onTapDown: (details) => _onTouchDown(details, 4),
                   child: Container(
                     color: Colors.black.withValues(alpha: 0.25),
-                    child: const Center(
-                      child: Text(
-                        "P4",
-                        style: TextStyle(color: Colors.white70, fontSize: 20),
-                      ),
-                    ),
+                    child: const Center(child: Text("P4", style: TextStyle(color: Colors.white70, fontSize: 20))),
                   ),
                 ),
               ),

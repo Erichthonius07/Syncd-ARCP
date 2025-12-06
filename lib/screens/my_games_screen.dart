@@ -11,8 +11,8 @@ class MyGamesScreen extends StatefulWidget {
 }
 
 class _MyGamesScreenState extends State<MyGamesScreen> {
-  List<String> myGames = ["Cyber Racer", "Space Tanks"];
-  List<String> availableGames = ["Pixel Arena", "Dungeon Drop", "Galaxy Golf"];
+  List<String> myGames = ["Cyber Racer", "Space Tanks", "Doom", "Halo"];
+  List<String> availableGames = ["Pixel Arena", "Dungeon Drop", "Galaxy Golf", "Poker", "Chess"];
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +38,13 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                const Text("SYNC'D SPACE", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
-                const SizedBox(height: 16),
+                const Text("INSTALLED", style: TextStyle(fontFamily: 'Pixer', fontSize: 20)),
+                const SizedBox(height: 12),
                 _buildGameGrid(myGames, isInstalled: true, colors: colors),
 
-                const SizedBox(height: 30),
-                const Text("ON DEVICE", style: TextStyle(fontFamily: 'Pixer', fontSize: 24)),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
+                const Text("ON DEVICE", style: TextStyle(fontFamily: 'Pixer', fontSize: 20)),
+                const SizedBox(height: 12),
                 _buildGameGrid(availableGames, isInstalled: false, colors: colors),
               ],
             ),
@@ -69,10 +69,11 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
       flex: isInstalled ? 3 : 2,
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.0
+          // --- FINAL POLISH: 4 Columns ---
+            crossAxisCount: 4,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.85 // Slightly tall for Icon + Text
         ),
         itemCount: games.length,
         itemBuilder: (context, index) {
@@ -81,20 +82,31 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Smaller Icon for dense grid
                 Icon(
                     Icons.videogame_asset,
-                    size: 40,
+                    size: 28,
                     color: isInstalled ? colors.actionLibrary : Colors.grey
                 ),
-                const SizedBox(height: 8),
-                Text(
-                    game,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge
+                const SizedBox(height: 4),
+
+                // Smaller, safe text
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                  child: Text(
+                      game,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontFamily: 'Pixer', // Use pixel font for retro feel
+                          fontSize: 10,        // Small enough for 4-col
+                          color: colors.textMain
+                      )
+                  ),
                 ),
                 const Spacer(),
 
-                // --- FIX: Use a standard block for multiple actions ---
                 GestureDetector(
                   onTap: () {
                     setState(() {
@@ -108,19 +120,20 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
                     });
                   },
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(4), // Smaller touch target padding
                     decoration: BoxDecoration(
                       color: isInstalled ? AppTheme.hotPink : AppTheme.matrixGreen,
                       shape: BoxShape.circle,
-                      border: Border.all(width: 2),
+                      border: Border.all(width: 1.5),
                     ),
                     child: Icon(
                         isInstalled ? Icons.remove : Icons.add,
-                        size: 16,
-                        color: Colors.black
+                        size: 12,
+                        color: Colors.white
                     ),
                   ),
-                )
+                ),
+                const SizedBox(height: 4),
               ],
             ),
           );

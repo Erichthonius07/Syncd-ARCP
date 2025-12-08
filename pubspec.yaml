@@ -29,7 +29,7 @@ dependencies:
   screen_brightness: ^2.0.0 # For keeping screen on during gaming
 
   # --- Video / WebRTC ---
-  flutter_webrtc: ^0.10.8 # Essential for screen mirroring
+  flutter_webrtc: ^0.12.3 # Essential for screen mirroring
 
 dev_dependencies:
   flutter_test:

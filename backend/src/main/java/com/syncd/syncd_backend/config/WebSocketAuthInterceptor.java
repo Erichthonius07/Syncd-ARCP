@@ -43,12 +43,14 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                     logger.info("🔐 Validating JWT token...");
 
                     // 2. Validate the token
-                    String username = tokenProvider.getUsernameFromJWT(jwt);
-                    logger.info("👤 Token belongs to user: {}", username);
-                    
-                    UserDetails userDetails = userService.loadUserByUsername(username);
+                    if (tokenProvider.validateToken(jwt)) {
+                        
+                        String username = tokenProvider.getUsernameFromJWT(jwt);
+                        logger.info("👤 Token belongs to user: {}", username);
+                        
+                        // Load user details from DB to ensure user still exists
+                        UserDetails userDetails = userService.loadUserByUsername(username);
 
-                    if (tokenProvider.validateToken(jwt, userDetails)) {
                         // 3. Set the authenticated user in the security context
                         UsernamePasswordAuthenticationToken authentication =
                                 new UsernamePasswordAuthenticationToken(
@@ -59,8 +61,9 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                         // 4. Associate the user with the WebSocket session
                         accessor.setUser(authentication);
                         logger.info("✅ WebSocket authentication successful for user: {}", username);
+                        
                     } else {
-                        logger.warn("❌ Token validation failed for user: {}", username);
+                        logger.warn("❌ Token validation failed");
                     }
                 } catch (Exception e) {
                     logger.error("❌ Error during WebSocket authentication: {}", e.getMessage(), e);

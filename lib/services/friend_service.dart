@@ -64,7 +64,7 @@ class FriendService extends ChangeNotifier {
 
   List<Friend> _friends = [];
   List<FriendRequest> _friendRequests = [];
-  List<Squad> _squads = [];
+  final List<Squad> _squads = [];
 
   List<Friend> get friends => _friends;
   List<FriendRequest> get friendRequests => _friendRequests;

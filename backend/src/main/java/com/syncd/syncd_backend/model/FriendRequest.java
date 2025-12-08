@@ -1,36 +1,43 @@
 package com.syncd.syncd_backend.model;
 
 import jakarta.persistence.*;
+import java.util.UUID;
+
 @Entity
 @Table(name = "friend_requests")
 public class FriendRequest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false)
-    private String sender;
+    private String id;
 
-    @Column(nullable = false)
-    private String receiver;
-    @Column(nullable = false)
-    private String status; // PENDING, ACCEPTED, DECLINED
+    private String senderId;
+    private String receiverId;
+    
+    // "PENDING", "ACCEPTED", "DECLINED"
+    private String status; 
 
-    public FriendRequest() {}
-
-    public FriendRequest(String sender, String receiver, String status) {
-        this.sender = sender;
-        this.receiver = receiver;
-        this.status = status;
+    public FriendRequest() {
+        this.id = UUID.randomUUID().toString();
+        this.status = "PENDING";
     }
 
-    public Long getId() { return id; }
-    public String getSender() { return sender; }
-    public String getReceiver() { return receiver; }
-    public String getStatus() { return status; }
+    public FriendRequest(String senderId, String receiverId) {
+        this.id = UUID.randomUUID().toString();
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+        this.status = "PENDING";
+    }
 
-    public void setId(Long id) { this.id = id; }
-    public void setSender(String sender) { this.sender = sender; }
-    public void setReceiver(String receiver) { this.receiver = receiver; }
+    // Getters & Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getSenderId() { return senderId; }
+    public void setSenderId(String senderId) { this.senderId = senderId; }
+
+    public String getReceiverId() { return receiverId; }
+    public void setReceiverId(String receiverId) { this.receiverId = receiverId; }
+
+    public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 }

@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(backgroundColor: Colors.red, content: Text(error!)),
+          SnackBar(backgroundColor: Colors.red, content: Text(error)),
         );
       }
     }

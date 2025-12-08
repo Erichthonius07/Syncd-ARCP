@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/socket_service.dart';
 import '../widgets/dot_grid_background.dart';
-import '../widgets/cyber_loader.dart'; // Updated Loader
-import '../services/auth_service.dart';
+import '../widgets/cyber_loader.dart'; // Make sure you have this widget!
 import '../theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -21,20 +22,28 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkLogin() async {
-    // Visual delay
+    // 1. Visual delay for the splash animation
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
-    // Since we removed Secure Storage, this will always return false for now,
-    // sending you to the Login Screen (which is what we want for development).
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final isLoggedIn = await authService.checkLoginStatus();
+    // 2. Check for stored auth token
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
 
     if (mounted) {
-      if (isLoggedIn) {
+      if (token != null) {
+        // --- LOGGED IN ---
+        print("✅ Token found. Connecting socket...");
+
+        // Connect WebSocket with the stored token
+        Provider.of<SocketService>(context, listen: false).connect(token);
+
+        // Navigate to Home
         Navigator.pushReplacementNamed(context, '/home');
       } else {
+        // --- NOT LOGGED IN ---
+        print("❌ No token found. Going to Login.");
         Navigator.pushReplacementNamed(context, '/login');
       }
     }
@@ -43,11 +52,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.cyberYellow, // Fallback color
       body: DotGridBackground(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // --- Logo with Animation ---
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -57,17 +68,37 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
                 child: const Text(
                   "SYNC'D",
-                  style: TextStyle(fontFamily: 'Pixer', fontSize: 48, color: Colors.black),
+                  style: TextStyle(
+                    fontFamily: 'Pixer',
+                    fontSize: 48,
+                    color: Colors.black,
+                  ),
                 ),
-              ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+              ).animate().scale(
+                  curve: Curves.elasticOut,
+                  duration: 800.ms,
+                  begin: const Offset(0.5, 0.5)
+              ),
 
               const SizedBox(height: 40),
 
-              // The New "Loading Bar" Style Loader
+              // --- Custom Loader ---
+              // If CyberLoader isn't working, replace this line with:
+              // const CircularProgressIndicator(color: Colors.black),
               const CyberLoader(size: 30, color: AppTheme.electricBlue),
 
               const SizedBox(height: 20),
-              const Text("INITIALIZING...", style: TextStyle(fontFamily: 'Pixer', fontSize: 14)),
+
+              // --- Status Text ---
+              const Text(
+                  "INITIALIZING...",
+                  style: TextStyle(
+                      fontFamily: 'Pixer',
+                      fontSize: 14,
+                      color: Colors.black54
+                  )
+              ).animate()
+                  .fadeIn(delay: 500.ms, duration: 500.ms),
             ],
           ),
         ),

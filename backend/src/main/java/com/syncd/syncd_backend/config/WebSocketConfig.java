@@ -13,29 +13,30 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Autowired
-    private WebSocketAuthInterceptor authInterceptor;
-    
-    // We no longer need the HttpHandshakeInterceptor
-    // @Autowired
-    // private HttpHandshakeInterceptor handshakeInterceptor; 
+    private WebSocketAuthInterceptor authInterceptor; // Inject our new security guard
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
+        // Enable simple broker for both public topics (squads) and private queues (DMs)
         config.enableSimpleBroker("/topic", "/queue");
+        
+        // Application destination prefix (messages sent from client to server)
         config.setApplicationDestinationPrefixes("/app");
-        config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // This is the endpoint the client connects to
         registry.addEndpoint("/ws-sync")
-                // We no longer add the handshake interceptor here
-                .setAllowedOriginPatterns("*")
-                .withSockJS(); // Keep SockJS for the client
+                .setAllowedOriginPatterns("*") // Allow all origins for dev
+                .withSockJS(); // Enable SockJS fallback
     }
 
+    // --- NEW: Register the Auth Interceptor ---
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        // This adds our interceptor to the "pipe" of incoming messages
+        // It checks the JWT token before the message is processed
         registration.interceptors(authInterceptor);
     }
 }

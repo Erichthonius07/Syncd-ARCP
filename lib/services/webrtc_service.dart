@@ -74,14 +74,12 @@ class WebRtcService with ChangeNotifier {
     _peerConnections[peerId] = peerConnection;
 
     if (withVideo || withAudio) {
-      if (_localStream == null) {
-        _localStream = await navigator.mediaDevices.getUserMedia({
+      _localStream ??= await navigator.mediaDevices.getUserMedia({
           'audio': withAudio,
           'video': withVideo
               ? {'mandatory': {}, 'optional': []}
               : false,
         });
-      }
 
       peerConnection.addStream(_localStream!);
       isVideoEnabled = withVideo;

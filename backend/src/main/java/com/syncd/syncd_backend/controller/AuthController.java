@@ -1,39 +1,68 @@
 package com.syncd.syncd_backend.controller;
 
+import com.syncd.syncd_backend.dto.AuthRequest;
+import com.syncd.syncd_backend.dto.AuthResponse;
 import com.syncd.syncd_backend.model.User;
 import com.syncd.syncd_backend.service.UserService;
-import org.springframework.http.ResponseEntity; // 1. IMPORT
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Allow Flutter to connect from anywhere (localhost, emulator, etc.)
 public class AuthController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
-
+    /**
+     * REGISTER Endpoint
+     * Accepts JSON: { "username": "...", "password": "...", "email": "...", "avatarIcon": "..." }
+     */
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        return userService.register(user);
+    public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
+        
+        // 1. Create a new User Entity from the Request DTO
+        User newUser = new User(
+                UUID.randomUUID().toString(), // Generate a unique ID
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword(), // Service will hash this
+                request.getAvatarIcon()
+        );
+
+        // 2. Call Service to save user
+        String result = userService.register(newUser);
+
+        // 3. Return response
+        if (result.contains("successfully")) {
+            return ResponseEntity.ok(new AuthResponse(null, result));
+        } else {
+            // If "Username exists" or "Email exists"
+            return ResponseEntity.badRequest().body(new AuthResponse(null, result));
+        }
     }
 
     /**
-     * UPDATED: Now returns a JSON object with the token.
+     * LOGIN Endpoint
+     * Accepts JSON: { "username": "...", "password": "..." }
+     * Returns JSON: { "token": "ey...", "message": "Login Successful" }
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
-        String tokenOrError = userService.login(user.getUsername(), user.getPassword());
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        
+        // 1. Call Service (returns Token OR Error Message)
+        String tokenOrError = userService.login(request.getUsername(), request.getPassword());
 
-        // Check if the service returned a token or an error message
-        if (tokenOrError.equals("Invalid password!") || tokenOrError.equals("User not found!")) {
-            return ResponseEntity.status(401).body(tokenOrError);
+        // 2. Check if it's a valid JWT (JWTs start with "ey")
+        if (tokenOrError.startsWith("ey")) {
+            return ResponseEntity.ok(new AuthResponse(tokenOrError, "Login Successful"));
+        } else {
+            // 3. Return 401 Unauthorized if login failed
+            return ResponseEntity.status(401).body(new AuthResponse(null, tokenOrError));
         }
-
-        // Return the token in a JSON object
-        return ResponseEntity.ok(java.util.Collections.singletonMap("token", tokenOrError));
     }
 }

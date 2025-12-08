@@ -43,27 +43,17 @@ public class GameController {
     @MessageMapping("/game/signal/sdp")
     public void forwardSdpSignal(@Payload SdpSignal signal, Principal principal) {
         signal.setFromUser(principal.getName());
-        
-        String targetPeerId = signal.getPeerId() != null ? signal.getPeerId() : signal.getToUser();
-        if (targetPeerId != null) {
-            System.out.println("📤 Routing SDP signal from " + principal.getName() + " to peerId: " + targetPeerId);
-            messagingTemplate.convertAndSendToUser(
-                    targetPeerId, "/queue/webrtc/sdp", signal
-            );
-        }
+        messagingTemplate.convertAndSendToUser(
+                signal.getToUser(), "/queue/webrtc/sdp", signal
+        );
     }
 
     @MessageMapping("/game/signal/ice")
     public void forwardIceCandidate(@Payload IceCandidateSignal signal, Principal principal) {
         signal.setFromUser(principal.getName());
-        
-        String targetPeerId = signal.getPeerId() != null ? signal.getPeerId() : signal.getToUser();
-        if (targetPeerId != null) {
-            System.out.println("📤 Routing ICE candidate from " + principal.getName() + " to peerId: " + targetPeerId);
-            messagingTemplate.convertAndSendToUser(
-                    targetPeerId, "/queue/webrtc/ice", signal
-            );
-        }
+        messagingTemplate.convertAndSendToUser(
+                signal.getToUser(), "/queue/webrtc/ice", signal
+        );
     }
     
     // --- 4. INVITES ---

@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/syncd
     username: postgres
-    password: nehal123
+    password: gitislove45
     driver-class-name: org.postgresql.Driver
 
   jpa:

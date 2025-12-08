@@ -1,68 +1,57 @@
 package com.syncd.syncd_backend.config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.util.Base64;
+import java.security.Key;
 import java.util.Date;
-import java.util.function.Function;
 
 @Component
 public class JwtTokenProvider {
 
-    // 1. Use a fixed secret key (in production, this should come from environment variables)
-    // This is a Base64-encoded 64-byte (512-bit) key suitable for HS512
-    private static final String FIXED_SECRET = "TXlTdXBlclNlY3JldEtleUZvckpXVFRva2VuR2VuZXJhdGlvbkFuZElzVmVyeUxvbmdUb0Jlc2F0aXNmaWVk";
-    
-    private final SecretKey jwtSecretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(FIXED_SECRET));
-    private final long jwtExpirationInMs = 86400000; // 24 hours
+    // In production, store this in application.properties!
+    // It must be at least 32 characters long for HS256.
+    private static final String JWT_SECRET = "SyncdSecretKeyForGameAuthenticationV2Point1";
 
-    // 2. Generate a token for a user
+    // Token validity: 7 days (in milliseconds)
+    private static final int JWT_EXPIRATION_MS = 604800000; 
+
+    private final Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
+
+    // --- 1. GENERATE TOKEN ---
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION_MS);
 
         return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .issuedAt(new Date())
-                .expiration(expiryDate)
-                .signWith(jwtSecretKey)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 3. Get username from the token
+    // --- 2. GET USERNAME FROM TOKEN ---
     public String getUsernameFromJWT(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
-    }
-
-    // 4. Validate the token
-    public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromJWT(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
-    // --- Helper Methods ---
-
-    private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims getAllClaimsFromToken(String token) {
-        // THIS IS THE CORRECTED SYNTAX FOR jjwt v0.12.3
-        return Jwts.parser()
-                .verifyWith(jwtSecretKey)
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
     }
 
-    private Boolean isTokenExpired(String token) {
-        final Date expiration = getClaimFromToken(token, Claims::getExpiration);
-        return expiration.before(new Date());
+    // --- 3. VALIDATE TOKEN ---
+    public boolean validateToken(String authToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            // Invalid token
+        }
+        return false;
     }
 }

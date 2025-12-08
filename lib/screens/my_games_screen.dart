@@ -34,7 +34,10 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // 1. Get Apps from device
       final apps = await _scanService.getInstalledApps();
+
+      // 2. Get Synced Games from Backend
       final syncedGames = await _fetchUserLibrary();
 
       if (mounted) {
@@ -85,6 +88,7 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
         _syncedGameNames.remove(appName);
       }
     });
+    // Send the NEW FULL LIST to the backend
     await _scanService.syncLibraryToBackend(_syncedGameNames);
   }
 
@@ -92,6 +96,8 @@ class _MyGamesScreenState extends State<MyGamesScreen> {
   Widget build(BuildContext context) {
     final colors = AppTheme.c(context);
 
+    // Filter logic: Check if the installed app's name is in the synced list
+    // Use app.name (AppInfo property) for matching
     final myGamesApps = _allInstalledApps
         .where((app) => _syncedGameNames.contains(app.name))
         .toList();

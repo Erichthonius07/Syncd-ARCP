@@ -1,34 +1,32 @@
 package com.syncd.syncd_backend.service;
 
-import com.syncd.syncd_backend.config.JwtTokenProvider; // 1. IMPORT
+import com.syncd.syncd_backend.config.JwtTokenProvider;
 import com.syncd.syncd_backend.model.User;
 import com.syncd.syncd_backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired; // 2. IMPORT
-import org.springframework.security.core.userdetails.UserDetails; // 3. IMPORT
-import org.springframework.security.core.userdetails.UserDetailsService; // 4. IMPORT
-import org.springframework.security.core.userdetails.UsernameNotFoundException; // 5. IMPORT
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder; // Necessary Import
 import org.springframework.stereotype.Service;
-import java.util.ArrayList; // 6. IMPORT
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
-// 7. IMPLEMENT UserDetailsService
 public class UserService implements UserDetailsService {
 
-    @Autowired // 8. INJECT JwtTokenProvider
-    private JwtTokenProvider tokenProvider;
-
+    private final JwtTokenProvider tokenProvider;
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder; // Injected Encoder (NO manual instantiation!)
 
-    public UserService(UserRepository userRepository) {
+    // CORRECTED CONSTRUCTOR: Spring automatically supplies the beans needed here
+    public UserService(UserRepository userRepository, JwtTokenProvider tokenProvider, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.tokenProvider = tokenProvider;
+        this.passwordEncoder = passwordEncoder; 
     }
-
+    
+    // Updated register method: Hashing is done correctly here
     public String register(User user) {
-        // ... (this method is unchanged)
         if (userRepository.existsByUsername(user.getUsername())) {
             return "Username already exists!";
         }
@@ -36,35 +34,36 @@ public class UserService implements UserDetailsService {
             return "Email already registered!";
         }
 
+        // HASH PASSWORD before saving using the injected encoder
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return "User registered successfully!";
     }
 
     /**
-     * UPDATED: Now returns a JWT Token on successful login.
+     * UPDATED: Login logic using passwordEncoder.matches() for comparison.
      */
     public String login(String username, String password) {
-        Optional<User> existingUser = userRepository.findByUsername(username);
-        if (existingUser.isPresent()) {
-            if (passwordEncoder.matches(password, existingUser.get().getPassword())) {
+        Optional<User> existingUserOpt = userRepository.findByUsername(username);
+        
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            
+            // CRITICAL STEP: COMPARE raw password against stored hash using the injected encoder
+            if (passwordEncoder.matches(password, existingUser.getPassword())) {
                 
-                // 9. CREATE UserDetails for token generation
                 UserDetails userDetails = loadUserByUsername(username);
                 
-                // 10. RETURN the token
+                // RETURN the JWT token
                 return tokenProvider.generateToken(userDetails);
             } else {
-                return "Invalid password!";
+                return "Invalid password!"; // Failure: Password mismatch
             }
         }
-        return "User not found!";
+        return "User not found!"; // Failure: User not found
     }
     
-    /**
-     * NEW: Required by UserDetailsService.
-     * This method loads a user for Spring Security.
-     */
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
@@ -72,8 +71,8 @@ public class UserService implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
-                user.getPassword(),
-                new ArrayList<>() // No roles for now
+                user.getPassword(), // The stored hash (already hashed by register/initializer)
+                new ArrayList<>() 
         );
     }
 }

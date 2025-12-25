@@ -1,11 +1,10 @@
 # 🚀 Sync'd — Multiplayer Social Gaming Platform
 
-**Sync’d** is a social gaming platform that makes **local-multiplayer-only Android games playable over the internet**.
-It connects players through real-time input synchronization, chat, and community features — all inside a single mobile app.
+**Sync’d** is a social gaming platform that makes **local-multiplayer-only Android games playable over the internet**. It connects players through real-time input synchronization, screen sharing, and community features — all inside a single mobile app. 
 
 This repository contains both the **Flutter frontend** and the **Spring Boot + PostgreSQL backend** that power the experience.
 
------
+---
 
 ## ⚡ Quick Start for All Developers
 
@@ -15,28 +14,32 @@ This repository contains both the **Flutter frontend** and the **Spring Boot + P
 | :--- | :--- | :--- |
 | **Java 17+** | `brew install openjdk@17` | [Download JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
 | **Maven 3.9+** | `brew install maven` | [Download Maven](https://maven.apache.org/download.cgi) |
-| **PostgreSQL 14+** | `brew install postgresql` | [PostgreSQL Installer](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) |
-| **Flutter SDK** | [Install Flutter](https://flutter.dev/docs/get-started/install/macos) | [Install Flutter](https://flutter.dev/docs/get-started/install/windows) |
-| **VS Code / Android Studio** | Any IDE with Java & Dart support | Same |
+| **PostgreSQL 14+** | `brew install postgresql` | [PostgreSQL Installer](https://www.postgresql.org/download/windows/) |
+| **Flutter SDK** | [Install Flutter](https://docs.flutter.dev/get-started/install/macos) | [Install Flutter](https://docs.flutter.dev/get-started/install/windows) |
+| **IDE** | VS Code / Android Studio | Any IDE with Java & Dart support |
 
------
+---
 
-## 🧱 Project Structure (Updated)
+## 🧱 Project Structure
 
-```
+```text
 Syncd-ARCP/
-├── frontend/                     # Flutter frontend (mock-data-based)
+├── frontend/                     # Flutter frontend (Glassmorphism UI)
 │   ├── lib/
+│   │   ├── services/             # Socket, WebRTC, App Scan Services
+│   │   ├── screens/              # Host, Join, Game Stream, Squads
+│   │   └── widgets/              # Reusable UI components
 │   └── pubspec.yaml
 │
 ├── backend/                      # Java Spring Boot backend
 │   ├── src/
 │   │   ├── main/java/com/syncd/syncd_backend/
-│   │   │   ├── controller/     # Auth, Friend, Activity, Chat, Lobby
-│   │   │   ├── service/        # User, Friend, Activity, Chat, Lobby
-│   │   │   ├── repository/     # User, Friend, Activity, Message, Lobby
-│   │   │   ├── model/          # User, FriendRequest, Activity, Message, Lobby
-│   │   │   ├── config/         # SecurityConfig
+│   │   │   ├── controller/       # REST (Auth, Lobby) & WebSocket Controllers
+│   │   │   ├── service/          # Business Logic & Chat Persistence
+│   │   │   ├── repository/       # JPA Repositories
+│   │   │   ├── model/            # Database Entities (User, Squad, GameLib)
+│   │   │   ├── dto/              # Data Transfer Objects
+│   │   │   ├── config/           # Security, JWT & WebSocket Configuration
 │   │   │   └── SyncdBackendApplication.java
 │   │   └── resources/
 │   │       └── application.yaml
@@ -45,53 +48,68 @@ Syncd-ARCP/
 └── README.md
 ```
 
------
+---
 
-## ✅ Work Completed So Far (Updated)
+## 👥 Team & Roles
 
-### 🧠 Backend (Developer A – Nehal Ajmal)
+| Role | Name | Responsibilities | GitHub |
+| :--- | :--- | :--- | :--- |
+| 🧠 **Backend & Core (Dev A)** | **Nehal Ajmal** | Core Backend, Real-Time Engine (WebSockets), Security/Auth, Game Sync Logic | [@nehalajmal](https://github.com/NehalAjmal) |
+| ⚡ **Advanced Features (Dev B)** | **Navistha Pandey** | Screen Sharing (WebRTC), App Scanning, Squads, Advanced User Data | [@navisthapandey](https://github.com/Navistha) |
+| 🎨 **Frontend (Dev C)** | **Mohd Amaan** | Flutter Frontend, UI/UX, Service Integration | [@Erichthonius07](https://github.com/Erichthonius07) |
 
-  * Spring Boot project initialized with Maven & PostgreSQL.
-  * Password encryption with **BCrypt** (`SecurityConfig`).
-  * **Module 1: User Authentication**
-      * `POST /api/auth/register`
-      * `POST /api/auth/login`
-  * **Module 2: Friend Management**
-      * `POST /api/friends/add`
-      * `GET /api/friends`
-      * `GET /api/friends/requests`
-      * `POST /api/friends/accept/{id}`
-      * `POST /api/friends/decline/{id}`
-  * **Module 3: Activity Feed**
-      * `GET /api/activity`
-      * `POST /api/activity/add`
-      * `DELETE /api/activity/all`
-  * **Module 4: Chat History**
-      * `GET /api/chat/{friendUsername}`
-  * **Module 5: Lobby Management**
-      * `POST /api/lobby/create`
-      * `POST /api/lobby/join`
+---
 
-### 🎨 Frontend (Developer C)
+## ✅ Work Completed So Far
 
-  * Full Flutter UI built and functional.
-  * Custom glassmorphism design + glitch splash screen.
-  * Navigation and Provider-based state management working.
-  * Currently uses **mock data** in `lib/services/` (no API calls yet).
+### 🧠 Backend & Core Engine (Developer A – Nehal Ajmal)
+* **Core Infrastructure:**
+    * Spring Boot project initialization with Maven & PostgreSQL.
+    * **Security Architecture:** `SecurityConfig`, BCrypt password encryption, and JWT Token generation/validation.
+* **Real-Time Engine (WebSocket + STOMP):**
+    * Configured `WebSocketConfig` with STOMP endpoints at `/ws-sync` and SockJS fallback.
+    * Created `WebSocketAuthInterceptor` to validate JWTs in the handshake headers, securing the real-time layer.
+* **Game & Input Synchronization:**
+    * **Virtual Controller Logic:** Implemented `GameInput` DTO for low-latency button presses.
+    * **Player Slots:** Logic to map inputs to specific slots (1-4) for split-screen gaming.
+    * **Broadcasting:** Routing logic in `GameController` to broadcast inputs to lobby topics (`/topic/game/{gameCode}`).
+* **REST Modules:**
+    * **User Auth:** Register/Login APIs.
+    * **Friend Management:** Add, Accept, Decline, List Friends.
+    * **Activity Feed:** Track and display user activities.
+    * **Chat History:** Persistent chat storage and retrieval.
+    * **Lobby Management:** Create and Join Game Lobbies.
+
+### ⚡ Advanced Features & Media (Developer B – Navistha Pandey)
+* **Screen Sharing & Streaming:**
+    * **WebRTC Implementation:** Built the logic for Peer-to-Peer video streaming (Host screen to Guest).
+    * **Signaling:** Handling SDP (Offer/Answer) and ICE Candidate exchange for establishing video pipes.
+* **App Scanning & Game Library:**
+    * **Device Scan:** Logic to scan the user's device for installed apps.
+    * **Game Library:** Allow users to add specific apps to their "Sync'd Library" to host them later.
+    * **User-Specific Data:** Enhanced data models to hold user-specific game preferences and library states.
+* **Squads & Social Rooms:**
+    * **Squad Architecture:** Created data models and logic for "Squads" (persistent groups).
+    * **Room Management:** Logic for game rooms and inviting specific people/squads to join a session.
+
+### 🎨 Frontend (Developer C – Mohd Amaan)
+* Full Flutter UI built and functional.
+* Custom glassmorphism design + glitch splash screen.
+* Navigation and Provider-based state management.
+* Integration of `SocketService` and `WebRTCService`.
+* UI implementation for Game Streaming, Virtual Controller, and App Library.
 
 ### ⚙️ Environment Verified
+- **Backend** runs successfully via `mvn spring-boot:run`.
+- **Tomcat** starts on port `8080`.
+- **PostgreSQL** connected and all tables (`users`, `friend_requests`, `activities`, `messages`, `lobbies`) are created/updated automatically.
+- All endpoints tested in **Postman**.
 
-  * Backend runs successfully via `mvn spring-boot:run`.
-  * Tomcat starts on port `8080`.
-  * PostgreSQL connected and all tables (`users`, `friend_requests`, `activities`, `messages`, `lobbies`) are created/updated automatically.
-  * All endpoints tested in Postman.
-
------
+---
 
 ## 🗄️ Database Setup (Mac & Windows)
 
 ### 1️⃣ Create Database
-
 ```bash
 psql -U postgres
 CREATE DATABASE syncd;
@@ -99,18 +117,15 @@ CREATE DATABASE syncd;
 ```
 
 ### 2️⃣ Configure Credentials
-
-Create a local-only config file. This file is ignored by Git.
+Create a local-only config file (this file is ignored by Git).
 
 ```bash
 cd backend/src/main/resources
-# cp application-example.yaml application.yaml  (if you have an example)
-# Or just create the file:
 touch application.yaml
 ```
 
+**Add this content to `application.yaml`:**
 ```yaml
-# Add this content to application.yaml
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/syncd
@@ -118,161 +133,79 @@ spring:
     password: your_postgres_password
 ```
 
------
+---
 
 ## 💻 Running the Backend
 
-### macOS / Linux
-
+**macOS / Linux / Windows**
 ```bash
 cd backend
 mvn clean install
 mvn spring-boot:run
 ```
 
-### Windows (cmd or PowerShell)
+**✅ You should see:**
+> Tomcat started on port 8080
+> Started SyncdBackendApplication
+
+---
+
+## 📱 Running the Mobile App
+
+**Note:** For the Host features (Screen Share + Touch Injection) to work, you must run this on an **Android Device** (Emulator or Physical).
 
 ```bash
-cd backend
-mvn clean install
-mvn spring-boot:run
+cd frontend
+flutter pub get
+flutter run
 ```
 
-✅ You should see:
+---
 
-```
-Tomcat started on port 8080
-Started SyncdBackendApplication
-```
+## 🧪 Test with Postman
 
------
+### 1. Register & Login
+* **POST** `http://localhost:8080/api/auth/login`
+* **Response:** Returns `{"token": "eyJhbGci..."}`. **Copy this token** for WebSocket testing.
 
-## 🧪 Test with Postman (Updated Examples)
+### 2. WebSocket Testing (SmartPost / Postman)
+* **URL:** `ws://localhost:8080/ws-sync`
+* **Headers:** `Authorization: Bearer <your_token>`
+* **Subscribe:** `/topic/game/ABCD` (to listen for inputs)
+* **Send Destination:** `/app/game/input`
 
-### 1\. Register Users
-
-Register "nehal" and "amaan":
-
-```
-POST http://localhost:8080/api/auth/register
-Content-Type: application/json
-```
-
+**JSON Payload:**
 ```json
 {
-  "username": "nehal",
-  "email": "nehal@gmail.com",
-  "password": "test123"
+  "gameCode": "ABCD",
+  "playerSlot": 1,
+  "inputData": "BTN_A_PRESS"
 }
 ```
 
-```json
-{
-  "username": "amaan",
-  "email": "amaan@gmail.com",
-  "password": "test123"
-}
-```
-
-### 2\. Send Friend Request
-
-"nehal" sends a request to "amaan":
-
-```
-POST http://localhost:8080/api/friends/add?sender=nehal&receiver=amaan
-```
-
-### 3\. Get/Accept Request
-
-Get "amaan's" pending requests:
-
-```
-GET http://localhost:8080/api/friends/requests?username=amaan
-```
-
-> **Response:**
-> `[ { "id": 1, "sender": "nehal", "receiver": "amaan", "status": "PENDING" } ]`
-
-Use the `id` (e.g., `1`) to accept:
-
-```
-POST http://localhost:8080/api/friends/accept/1
-```
-
-### 4\. Create Lobby
-
-"nehal" hosts a game:
-
-```
-POST http://localhost:8080/api/lobby/create?hostUsername=nehal
-```
-
-> **Response:**
-> `{ "id": 1, ..., "gameCode": "A4T7", "hostUsername": "nehal", ... }`
-
-### 5\. Join Lobby
-
-"amaan" joins "nehal's" lobby using the `gameCode`:
-
-```
-POST http://localhost:8080/api/lobby/join?gameCode=A4T7&participantUsername=amaan
-```
-
------
-
-## 💡 Frontend Notes
-
-  * The Flutter app currently consumes mock data.
-  * All API services in `lib/services/` are ready for integration. The frontend team can now begin replacing the mock data with live `http` calls to the `localhost:8080` endpoints.
-
------
+---
 
 ## 🔧 Useful Commands
 
-| Task | macOS | Windows |
-| :--- | :--- | :--- |
-| Start PostgreSQL | `brew services start postgresql` | `pg_ctl -D "C:\Program Files\PostgreSQL\14\data" start` |
-| Stop PostgreSQL | `brew services stop postgresql` | `pg_ctl stop` |
-| Access DB shell | `psql -U postgres` | `psql -U postgres` |
-| Build backend | `mvn clean install` | `mvn clean install` |
-| Run backend | `mvn spring-boot:run` | `mvn spring-boot:run` |
-Storage
-| Run frontend | `flutter run` | `flutter run` |
+| Task | Command |
+| :--- | :--- |
+| **Start PostgreSQL** | `brew services start postgresql` (Mac) / `pg_ctl start` (Win) |
+| **Access DB shell** | `psql -U postgres` |
+| **Build backend** | `mvn clean install` |
+| **Run backend** | `mvn spring-boot:run` |
+| **Run frontend** | `flutter run` |
 
------
+---
 
-## 🔄 Git Workflow
+## 🔧 Troubleshooting
 
-```bash
-# clone
-git clone https://github.com/<org>/Syncd-ARCP.git
+* **WebSocket Error 401/403:** Ensure the JWT token is being passed correctly in the `Authorization: Bearer` header during the STOMP handshake.
+* **Video Black Screen:** Ensure both devices are on networks that allow P2P WebRTC traffic (or configure a TURN server).
+* **Touches Not Working:** The Host **must** enable the "Sync'd Accessibility Service" in their phone's Accessibility settings.
 
-# create feature branch
-git checkout -b backend/feature-lobby
-
-# commit changes
-git add .
-git commit -m "feat: added lobby management module"
-
-# push
-git push origin backend/feature-lobby
-```
-
------
-
-## 👥 Team
-
-| role | Name | Role |
-| :--- | :--- | :--- |
-| 🧠 Developer A | Nehal Ajmal | Backend REST API & Database |
-| ⚡ Developer B | Navistha Pandey | WebSocket & Real-Time Engine |
-| 🎨 Developer C | Mohd Amaan | Flutter Frontend (UI & UX) |
-
------
+---
 
 ## 🧾 License
 
-© 2025 **Sync’d Development Team** — All Rights Reserved.
+© 2025 **Sync’d Development Team** — All Rights Reserved.  
 Built collaboratively using **Spring Boot**, **PostgreSQL**, and **Flutter**.
-
------

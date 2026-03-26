@@ -54,8 +54,8 @@ Syncd-ARCP/
 
 | Role | Name | Responsibilities | GitHub |
 | :--- | :--- | :--- | :--- |
-| 🧠 **Backend & Core (Dev A)** | **Nehal Ajmal** | Core Backend, Real-Time Engine (WebSockets), Security/Auth, Game Sync Logic | [@nehalajmal](https://github.com/NehalAjmal) |
-| ⚡ **Advanced Features (Dev B)** | **Navistha Pandey** | Screen Sharing (WebRTC), App Scanning, Squads, Advanced User Data | [@navisthapandey](https://github.com/Navistha) |
+| 🧠 **Backend & Core (Dev A)** | **Nehal Ajmal** | Core Backend, Real-Time Engine (WebSockets), Security/Auth, Game Sync Logic | [@NehalAjmal](https://github.com/NehalAjmal) |
+| ⚡ **Advanced Features (Dev B)** | **Navistha Pandey** | Screen Sharing (WebRTC), App Scanning, Squads, Advanced User Data | [@Navistha](https://github.com/Navistha) |
 | 🎨 **Frontend (Dev C)** | **Mohd Amaan** | Flutter Frontend, UI/UX, Service Integration | [@Erichthonius07](https://github.com/Erichthonius07) |
 
 ---
